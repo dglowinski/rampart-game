@@ -6,9 +6,74 @@
 
 .cell {
   background-size: contain;
-  /*border: 1px solid white;*/
   box-sizing: border-box;
   float: left;
   height: 10px;
   width: 10px;
+}
+
+.water {
+  background-color: blue;
+}
+.land {
+  background-color: green;
+}
+
+.castle {
+  width:  10px;
+  height: 15px;
+}
+
+.seg-single {
+    border: 1px dotted white;
+}
+.seg-closed-up {
+    border: 1px dotted white;
+    border-bottom: none;
+}
+.seg-closed-down {
+    border: 1px dotted white;
+    border-top: none;
+}
+.seg-closed-left {
+    border: 1px dotted white;
+    border-right: none;
+}
+.seg-closed-right {
+    border: 1px dotted white;
+    border-left: none;
+}
+.seg-through-horizontal {
+    border: 1px dotted white;
+    border-left: none;
+    border-right: none;
+}
+.seg-through-vertical {
+    border: 1px dotted white;
+    border-top: none;
+    border-bottom: none;
+}
+
+.seg-corner-lu {
+    border: 1px dotted white;
+    border-right: none;
+    border-bottom: none;
+}
+
+.seg-corner-ru {
+    border: 1px dotted white;
+    border-left: none;
+    border-bottom: none;
+}
+
+.seg-corner-rd {
+    border: 1px dotted white;
+    border-left: none;
+    border-top: none;
+}
+
+.seg-corner-ld {
+    border: 1px dotted white;
+    border-right: none;
+    border-top: none;
 }
