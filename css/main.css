@@ -1,0 +1,14 @@
+.container {
+  height: 250px;
+  margin: 30px auto;
+  width: 500px;
+}
+
+.cell {
+  background-size: contain;
+  /*border: 1px solid white;*/
+  box-sizing: border-box;
+  float: left;
+  height: 10px;
+  width: 10px;
+}
