@@ -9,7 +9,7 @@ function Game() {
 
 function Builder(board) {
   this.board = board;
-  this.segmentFunctions = [seg1, seg2, seg3, segL, segLlarge];
+  this.segmentFunctions = [seg1, seg2, seg3, segL, segLlarge, seg5];
   this.segmentDirection = 0; //N
 
   this.segmentFunction = this.getRandomSegment();
@@ -20,7 +20,6 @@ function Builder(board) {
 
 }
 Builder.prototype.getRandomSegment = function () {
- // return this.segmentFunctions[4];
   return this.segmentFunctions[Math.floor(Math.random() * this.segmentFunctions.length)];
 }
 
