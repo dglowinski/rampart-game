@@ -22,6 +22,8 @@
 .castle {
   width:  10px;
   height: 15px;
+  padding:0;
+  margin:0;
 }
 
 .seg-single {
@@ -76,4 +78,8 @@
     border: 1px dotted white;
     border-right: none;
     border-top: none;
+}
+
+.wall {
+  background-color: black;
 }
