@@ -1,5 +1,5 @@
 .container {
-  height: 250px;
+  height: 300px;
   margin: 30px auto;
   width: 500px;
 }
@@ -82,4 +82,8 @@
 
 .wall {
   background-color: black;
+}
+
+.territory-player-0 {
+  background-color:yellow;
 }
