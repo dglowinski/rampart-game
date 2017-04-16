@@ -201,7 +201,7 @@ Board.prototype.animateShot = function ($origin, $target, cb) {
   var self = this;
   if(Math.abs(originOffset.left - targetOffset.left) > Math.abs(originOffset.top-targetOffset.top)) {
     anim1 = {left:targetOffset.left};
-    console.log((targetOffset.top-originOffset.top));  
+    
     anim2 = {top:targetOffset.top-50-(targetOffset.top-originOffset.top)*2/3, width:"20", height:"20"};
     anim3 = {top:targetOffset.top,width:"10", height:"10"};
   } else {
