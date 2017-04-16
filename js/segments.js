@@ -137,5 +137,14 @@
     }
     return segment;
   }
+
+  function segCannon(row, col) {
+    var segment=[];
+    segment.push({row:row, col:col, type:'seg-corner-lu'});
+    segment.push({row:row, col:col+1, type:'seg-corner-ru'});
+    segment.push({row:row+1, col:col, type:'seg-corner-ld'});  
+    segment.push({row:row+1, col:col+1, type:'seg-corner-rd'});
+    return segment;
+  }
   
   

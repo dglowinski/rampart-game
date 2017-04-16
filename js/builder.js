@@ -6,7 +6,7 @@ function Builder(board, player) {
   this.segmentDirection = 0; //N
 
   this.segmentFunction = this.getRandomSegment();
-  this.registerEventHandlers();
+  this.registerEvents();
 
   this.initWalls();
   this.board.drawWalls();
@@ -18,16 +18,16 @@ Builder.prototype.getRandomSegment = function () {
 }
 
 Builder.prototype.initWalls = function () {
-  for(var i=0; i<7; i++) {
+  for(var i=0; i<8; i++) {
     this.player.addWall([{row:this.board.castle.row-3, col:this.board.castle.col-3+i}]);
-    this.player.addWall([{row:this.board.castle.row+3, col:this.board.castle.col-3+i}]);
+    this.player.addWall([{row:this.board.castle.row+4, col:this.board.castle.col-3+i}]);
   }
-  for(var i=0; i<5; i++) {
+  for(var i=0; i<6; i++) {
     this.player.addWall([{row:this.board.castle.row-2+i, col:this.board.castle.col-3}]);
-    this.player.addWall([{row:this.board.castle.row-2+i, col:this.board.castle.col+3}]);
+    this.player.addWall([{row:this.board.castle.row-2+i, col:this.board.castle.col+4}]);
   }
 }
-Builder.prototype.registerEventHandlers = function () {
+Builder.prototype.registerEvents = function () {
 
   $('.land').mouseover(this.moveSegment.bind(this));
   $(window).mousedown(this.click.bind(this));
@@ -149,4 +149,9 @@ Builder.prototype.click = function(mouse) {
       break;
   }
   mouse.preventDefault();
+}
+
+Builder.prototype.finish = function() {
+  $('.land').unbind("mouseover");
+  $(window).unbind("mousedown");
 }

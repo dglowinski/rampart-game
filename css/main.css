@@ -21,8 +21,8 @@
 
 .castle {
   position:absolute;
-  width:  10px;
-  height: 10px;
+  width:  20px;
+  height: 20px;
   padding:0;
   margin:0;
 }
@@ -86,5 +86,11 @@
 }
 
 .territory-player-0 {
-  background-color:yellow;
+  background-color:grey;
+}
+.cannon-img {
+    width:20px;
+    height:20px;
+    position:absolute;
+    pointer-events: none;
 }

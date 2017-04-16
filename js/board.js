@@ -2,7 +2,6 @@
 function Board(players) {
   this.players = players;
   this.loadTerrain();
-
 }
 
 Board.prototype.initBoard = function () {
@@ -59,7 +58,7 @@ Board.prototype.draw = function () {
         $(selector).addClass('water');
       }
       if(rowIndex === this.castle.row && colIndex === this.castle.col) {
-        $(selector).append("<img class='castle' src='img/castle.bmp'>");
+        $(selector).append("<img class='castle' src='img/castle.svg'>");
       }
     }.bind(this));
   }.bind(this));
@@ -75,7 +74,7 @@ Board.prototype.drawSegment = function (segment) {
   segment.forEach(function(seg){
     $(cellSelector(seg.row, seg.col)).addClass(seg.type).addClass("segment");
   });
-  if(this.canBuildWall(segment)) {
+  if(this.canBuild(segment)) {
     $(".segment").css('border-color','white');
   } else {
 
@@ -83,6 +82,35 @@ Board.prototype.drawSegment = function (segment) {
   }
 };
 
+Board.prototype.drawCannonSegment = function (segment) {
+
+  
+  if(segment.some(function(seg) {
+        return seg.row < 0 || seg.row > this.rows-1 || seg.col<0 || seg.col>this.columns-1;
+      }.bind(this))) {
+    return;
+  }
+  if(this.canBuild(segment)) {
+
+    $(".cannon-segment-main").html("");
+    $(".cannon-segment").removeClass("cannon-segment").removeClass('seg-corner-lu seg-corner-ru seg-corner-rd seg-corner-ld');
+    segment.forEach(function(seg){
+      $(cellSelector(seg.row, seg.col)).addClass(seg.type).addClass("cannon-segment");
+    });
+
+    $(cellSelector(segment[0].row, segment[0].col)).html("<img src='img/cannon.svg' class='cannon-img'>")
+                                                   .addClass("cannon-segment-main");
+    
+
+    $(".cannon-segment").css('border-color','white');
+
+    return {row:segment[0].row, col:segment[0].col};
+  } 
+};
+Board.prototype.drawCannon = function () {
+  $(".cannon-segment-main").removeClass('cannon-segment-main').addClass('cannon');
+  $(".cannon-segment").removeClass('seg-corner-lu seg-corner-ru seg-corner-rd seg-corner-ld')
+}
 Board.prototype.drawWalls = function () {
   this.players.forEach(function(player){
     player.wall.forEach(function(wallSegment) {
@@ -104,7 +132,7 @@ Board.prototype.drawTerritory = function (playerNum) {
 };
 
 
-Board.prototype.canBuildWall = function (segment) {
+Board.prototype.canBuild = function (segment) {
   if(isNaN(segment[0].row)) return false;
   var hasWater = segment.some(function(seg){
     return this.board[seg.row][seg.col].terrain==='water'; 
@@ -118,5 +146,29 @@ Board.prototype.canBuildWall = function (segment) {
     })
   }.bind(this));
 
-  return !(hasWater || hasWall);
+  var hasCannon= segment.some(function(seg){
+    return this.players.some(function(player){
+      return player.cannons.some(function(cannon){
+        return cannon.row===seg.row && cannon.col===seg.col ||
+               cannon.row+1===seg.row && cannon.col===seg.col ||
+               cannon.row===seg.row && cannon.col+1===seg.col ||
+               cannon.row+1===seg.row && cannon.col+1===seg.col;
+      })
+    })
+  }.bind(this));
+
+  var hasCastle = segment.some(function(seg){
+    return this.castle.row === seg.row && this.castle.col === seg.col ||
+           this.castle.row+1 === seg.row && this.castle.col === seg.col ||
+           this.castle.row === seg.row && this.castle.col+1 === seg.col ||
+           this.castle.row+1 === seg.row && this.castle.col+1 === seg.col;
+  }.bind(this));
+  return !(hasWater || hasWall || hasCannon || hasCastle);
 };
+
+Board.prototype.canPlaceCannon = function () {
+  return this.players[0].territory.some(function(ter){
+    return this.canBuild(segCannon(ter.row, ter.col));
+  }.bind(this))
+
+}
