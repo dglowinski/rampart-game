@@ -182,3 +182,38 @@ Board.prototype.canPlaceCannon = function () {
 Board.prototype.removeWall = function (wallSeg) {
   $(cellSelector(wallSeg.row, wallSeg.col)).removeClass('wall');
 }
+
+
+Board.prototype.animateShot = function ($origin, $target, cb) {
+  
+  var originOffset = $origin.offset();
+  originOffset.top+=5;
+  originOffset.left+=5;
+
+  var $ball = $("<img src='img/cannonball.svg' class='cannonball'>");
+  $(".container").append($ball);
+  $ball.offset(originOffset);
+
+  var targetOffset = $target.offset();
+  
+  var self = this;
+  
+  $ball.animate({left:targetOffset.left},{queue:false, duration:1500});
+  $ball.animate({top:targetOffset.top-50, width:"20", height:"20"},1000);
+  $ball.animate({top:targetOffset.top,width:"10", height:"10"},500, function(){
+  
+    var $explosion = $("<img src='img/explosion.svg' class='explosion'>");
+    var explosionOffset = $ball.offset();
+    explosionOffset.top-=5;
+    explosionOffset.left-=8;
+
+    $explosion.offset(explosionOffset);
+    $ball.remove();
+    $('.container').append($explosion);
+    cb();
+    
+    setTimeout(function(){
+      $explosion.remove();
+    }.bind(this), 200)
+  });
+}

@@ -106,51 +106,19 @@ function Ship(position, player, board) {
 
 Ship.prototype.shoot = function() {
   console.log("shoot");
-  $ship = $(cellSelector(this.row, this.col)).find("img");
-  var shipOffset = $ship.offset();
-  shipOffset.top+=5;
-  shipOffset.left+=5;
-
-  var $ball = $("<img src='img/cannonball.svg' class='cannonball'>");
-  $(".container").append($ball);
-  $ball.offset(shipOffset);
   if(this.player.wall.length) {
+
     var wallIndex = Math.floor(Math.random() * this.player.wall.length);
-    console.log("select target")
+
     var wall = this.player.wall[wallIndex];
     this.destroyedWall = {row:wall.row, col:wall.col};
     this.player.destroyWall(wallIndex); 
-
-    var wallOffset = $(cellSelector(wall.row, wall.col)).offset();
-
-    
-    
-    var self = this;
-
-
-    
-    
-    $ball.animate({left:wallOffset.left},{queue:false, duration:1500});
-    $ball.animate({top:wallOffset.top-50, width:"20", height:"20"},1000);
-    $ball.animate({top:wallOffset.top,width:"10", height:"10"},500, function(){
-    
-      var $explosion = $("<img src='img/explosion.svg' class='explosion'>");
-      var explosionOffset = $ball.offset();
-      explosionOffset.top-=5;
-      explosionOffset.left-=8;
-
-      $explosion.offset(explosionOffset);
-      $ball.remove();
-      $('.container').append($explosion);
-      self.board.removeWall(self.destroyedWall);
-      
-      setTimeout(function(){
-        $explosion.remove();
-      }.bind(this), 200)
-    });
-    }
+    this.board.animateShot($(cellSelector(this.row, this.col)).find("img"), $(cellSelector(wall.row, wall.col)), this.shootCb.bind(this));
+  }
 }
-
+Ship.prototype.shootCb = function() {
+  this.board.removeWall(this.destroyedWall);
+}
 
 function Cannoner(board, player, finishCb) {
   this.board = board;
