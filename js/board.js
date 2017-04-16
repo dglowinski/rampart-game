@@ -127,10 +127,16 @@ Board.prototype.drawTerritory = function (playerNum) {
   this.players.forEach(function(player) {
     player.territory.forEach(function(ter){
       $(cellSelector(ter.row, ter.col)).addClass("territory-player-"+player.number)
-    })
-  })
+    });
+  });
 };
 
+
+Board.prototype.drawShips = function (ships) {
+  ships.forEach(function(ship){
+    $(cellSelector(ship.row, ship.col)).html("<img src='img/ship2.svg' class='ship' data-row='"+ship.row+"' data-col='"+ship.col+"'>");
+  });
+};
 
 Board.prototype.canBuild = function (segment) {
   if(isNaN(segment[0].row)) return false;
@@ -171,4 +177,8 @@ Board.prototype.canPlaceCannon = function () {
     return this.canBuild(segCannon(ter.row, ter.col));
   }.bind(this))
 
+}
+
+Board.prototype.removeWall = function (wallSeg) {
+  $(cellSelector(wallSeg.row, wallSeg.col)).removeClass('wall');
 }

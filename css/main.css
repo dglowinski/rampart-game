@@ -94,3 +94,21 @@
     position:absolute;
     pointer-events: none;
 }
+
+.ship {
+    width:20px;
+    height:20px;
+    position:absolute;
+}
+
+.cannonball {
+    width:10px;
+   
+    position:absolute;
+}
+
+.explosion {
+    width:50px;
+    
+    position:absolute;
+}

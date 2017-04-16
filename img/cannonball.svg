@@ -1,0 +1,38 @@
+<?xml version="1.0"?><svg width="640" height="480" xmlns="http://www.w3.org/2000/svg">
+ <!-- Created with SVG-edit - http://svg-edit.googlecode.com/ -->
+ <title>Bomb Body</title>
+ <defs>
+  <radialGradient r="0.5" cy="0.5" cx="0.5" id="svg_4">
+   <stop stop-color="#b7acac" offset="0"/>
+   <stop stop-color="#30302b" offset="1"/>
+  </radialGradient>
+  <radialGradient r="0.5" cy="0.5" cx="0.5" id="svg_5">
+   <stop stop-color="#b7acac" offset="0"/>
+   <stop stop-color="#30302b" offset="1"/>
+  </radialGradient>
+  <radialGradient fy="0" fx="0.480469" r="0.277551" cy="0.507813" cx="0.480469" id="svg_7">
+   <stop stop-color="#b7acac" offset="0"/>
+   <stop stop-color="#30302b" offset="1"/>
+  </radialGradient>
+  <radialGradient r="0.326531" cy="0.2" cx="0.7" id="svg_8">
+   <stop stop-color="#bfb1b1" offset="0"/>
+   <stop stop-color="#232321" offset="1"/>
+  </radialGradient>
+  <radialGradient r="0.326531" cy="0.2" cx="0.7" id="svg_9">
+   <stop stop-color="#bfb1b1" offset="0"/>
+   <stop stop-color="#232321" offset="1"/>
+  </radialGradient>
+  <radialGradient r="0.326531" cy="0.2" cx="0.7" id="svg_10">
+   <stop stop-color="#bfb1b1" offset="0"/>
+   <stop stop-color="#232321" offset="1"/>
+  </radialGradient>
+  <radialGradient r="0.326531" cy="0.2" cx="0.7" id="svg_11">
+   <stop stop-color="#bfb1b1" offset="0"/>
+   <stop stop-color="#232321" offset="1"/>
+  </radialGradient>
+ </defs>
+ <g>
+  <title>Layer 1</title>
+  <path id="svg_2" d="m150,314c0,-81.215469 70.259674,-147 157,-147c86.740356,0 157,65.784531 157,147c0,81.215485 -70.259644,147 -157,147c-86.740326,0 -157,-65.784515 -157,-147z" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="5" stroke="#000000" fill="url(#svg_11)"/>
+ </g>
+</svg>

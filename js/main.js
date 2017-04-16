@@ -1,4 +1,7 @@
 var MAX_CANNONS_PER_ROUND = 3;
+var WAR_DURATION = 100000;
+var NEW_SHIPS_PER_ROUND = 3;
+var SHIP_ATTACK_DELAY = 4000;
 
 function Game() {
   this.players = [];
@@ -12,13 +15,142 @@ function Game() {
   this.builder = new Builder(this.board, this.players[0]);
   this.builder.finish();
 
-  this.cannoner = new Cannoner(this.board, this.players[0], this.onCannonerFinish);
+  this.war = new War(this.board, this.players, this.onWarFinish);
+
+  this.cannoner = new Cannoner(this.board, this.players[0], this.onCannonerFinish.bind(this));
   this.cannoner.init();
-}
+
+  
+}/*
+  this.duration = 0;
+  this.timerId = setInterval(function() {
+    if(++this.duration === WAR_DURATION) {
+      clearInterval(this.timerId)
+      this.finish();
+    }
+  }.bind(this), 1000);
+*/
 
 Game.prototype.onCannonerFinish = function () {
   console.log('now war');
+  this.war.start();
 }
+
+Game.prototype.onWarFinish = function () {
+  console.log('war finished');
+}
+
+
+function War(board, players) {
+  this.board = board;
+  this.players = players;
+  this.ships = [];
+  
+}
+
+War.prototype.start = function () {
+  this.addShips();
+  this.board.drawShips(this.ships);
+  setTimeout(this.shipsAttack.bind(this),1000);
+  this.shipsAttackTimer = setInterval(this.shipsAttack.bind(this), SHIP_ATTACK_DELAY);
+  this.checkWallsTimer = setInterval(function(){
+    if(this.players[0].wall.length===0) {
+      console.log('walls destroyed');
+      clearInterval(this.shipsAttackTimer);
+      clearInterval(this.checkWallsTimer);
+    }
+  }.bind(this), 50) 
+}
+
+War.prototype.shipsAttack = function() {
+  this.ships.forEach(function(ship,index){
+    setTimeout(ship.shoot.bind(ship), index*1000*Math.random());
+  });
+}
+
+War.prototype.addShips = function () {
+  for(var i=0; i<NEW_SHIPS_PER_ROUND; i++) {
+    this.ships.push(new Ship(this.getRandomShipPosition(), this.players[0], this.board));
+  }
+}
+
+War.prototype.getRandomShipPosition = function () {
+  var isCorrectPosition = false, row, col, hasLand, hasShip;
+  do {
+    row = Math.floor(Math.random() * (this.board.rows-1));
+    col = Math.floor(Math.random() * (this.board.columns-1));
+    hasLand = this.board.board[row][col].terrain==='land' ||
+              this.board.board[row+1][col].terrain==='land' ||
+              this.board.board[row][col+1].terrain==='land' ||
+              this.board.board[row+1][col+1].terrain==='land';
+    if(!hasLand) {
+      hasShip = this.ships.length ? false : this.ships.some(function(ship){
+        return row===ship.row && (col===ship.col-1 || col===ship.col || col===ship.col+1) ||
+                row===ship.row-1 && (col===ship.col-1 || col===ship.col || col===ship.col+1) ||
+                row===ship.row+1 && (col===ship.col-1 || col===ship.col || col===ship.col+1);
+      });
+      if(!hasShip) isCorrectPosition = true;
+    }
+    
+  } while(!isCorrectPosition);
+  return {row:row, col:col};
+}
+
+function Ship(position, player, board) {
+  this.row = position.row;
+  this.col = position.col;
+  this.player = player;
+  this.board = board;
+}
+
+
+Ship.prototype.shoot = function() {
+  console.log("shoot");
+  $ship = $(cellSelector(this.row, this.col)).find("img");
+  var shipOffset = $ship.offset();
+  shipOffset.top+=5;
+  shipOffset.left+=5;
+
+  var $ball = $("<img src='img/cannonball.svg' class='cannonball'>");
+  $(".container").append($ball);
+  $ball.offset(shipOffset);
+  if(this.player.wall.length) {
+    var wallIndex = Math.floor(Math.random() * this.player.wall.length);
+    console.log("select target")
+    var wall = this.player.wall[wallIndex];
+    this.destroyedWall = {row:wall.row, col:wall.col};
+    this.player.destroyWall(wallIndex); 
+
+    var wallOffset = $(cellSelector(wall.row, wall.col)).offset();
+
+    
+    
+    var self = this;
+
+
+    
+    
+    $ball.animate({left:wallOffset.left},{queue:false, duration:1500});
+    $ball.animate({top:wallOffset.top-50, width:"20", height:"20"},1000);
+    $ball.animate({top:wallOffset.top,width:"10", height:"10"},500, function(){
+    
+      var $explosion = $("<img src='img/explosion.svg' class='explosion'>");
+      var explosionOffset = $ball.offset();
+      explosionOffset.top-=5;
+      explosionOffset.left-=8;
+
+      $explosion.offset(explosionOffset);
+      $ball.remove();
+      $('.container').append($explosion);
+      self.board.removeWall(self.destroyedWall);
+      
+      setTimeout(function(){
+        $explosion.remove();
+      }.bind(this), 200)
+    });
+    }
+}
+
 
 function Cannoner(board, player, finishCb) {
   this.board = board;
@@ -85,6 +217,11 @@ Player.prototype.addCannon= function (cell) {
   this.cannons.push(new Cannon(cell));
 }
 
+Player.prototype.destroyWall= function (wallIndex) {
+  
+  
+  this.wall.splice(wallIndex, 1);
+}
 function Cannon(cell) {
   this.row = cell.row;
   this.col = cell.col;
