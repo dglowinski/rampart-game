@@ -134,7 +134,7 @@ Board.prototype.drawTerritory = function (playerNum) {
 
 Board.prototype.drawShips = function (ships) {
   ships.forEach(function(ship){
-    $(cellSelector(ship.row, ship.col)).html("<img src='img/ship2.svg' class='ship' data-row='"+ship.row+"' data-col='"+ship.col+"'>");
+    $(cellSelector(ship.row, ship.col)).html("<img src='img/ship2.svg' class='ship' id='"+ship.id+"'>");
   });
 };
 
@@ -182,10 +182,12 @@ Board.prototype.canPlaceCannon = function () {
 Board.prototype.removeWall = function (wallSeg) {
   $(cellSelector(wallSeg.row, wallSeg.col)).removeClass('wall');
 }
-
+Board.prototype.removeShip = function (id) {
+  $("#"+id).remove();
+}
 
 Board.prototype.animateShot = function ($origin, $target, cb) {
-  
+  var anim1, anim2, anim3;
   var originOffset = $origin.offset();
   originOffset.top+=5;
   originOffset.left+=5;
@@ -197,10 +199,22 @@ Board.prototype.animateShot = function ($origin, $target, cb) {
   var targetOffset = $target.offset();
   
   var self = this;
-  
-  $ball.animate({left:targetOffset.left},{queue:false, duration:1500});
-  $ball.animate({top:targetOffset.top-50, width:"20", height:"20"},1000);
-  $ball.animate({top:targetOffset.top,width:"10", height:"10"},500, function(){
+  if(Math.abs(originOffset.left - targetOffset.left) > Math.abs(originOffset.top-targetOffset.top)) {
+    anim1 = {left:targetOffset.left};
+    console.log((targetOffset.top-originOffset.top));  
+    anim2 = {top:targetOffset.top-50-(targetOffset.top-originOffset.top)*2/3, width:"20", height:"20"};
+    anim3 = {top:targetOffset.top,width:"10", height:"10"};
+  } else {
+    anim1 = {top:targetOffset.top};
+    if( targetOffset.left > originOffset.left)
+      anim2 = {left:targetOffset.left+50, width:"20", height:"20"};
+    else
+      anim2 = {left:targetOffset.left-50, width:"20", height:"20"};
+    anim3 = {left:targetOffset.left,width:"10", height:"10"};
+  }
+    $ball.animate(anim1, {queue:false, duration:1500});
+    $ball.animate(anim2, 1000);
+    $ball.animate(anim3 ,500, function(){
   
     var $explosion = $("<img src='img/explosion.svg' class='explosion'>");
     var explosionOffset = $ball.offset();

@@ -2,6 +2,7 @@ var MAX_CANNONS_PER_ROUND = 3;
 var WAR_DURATION = 100000;
 var NEW_SHIPS_PER_ROUND = 3;
 var SHIP_ATTACK_DELAY = 4000;
+var MAX_SHIP_DAMAGE = 3;
 
 function Game() {
   this.players = [];
@@ -32,7 +33,7 @@ function Game() {
 */
 
 Game.prototype.onCannonerFinish = function () {
-  console.log('now war');
+  
   this.war.start();
 }
 
@@ -51,6 +52,10 @@ function War(board, players) {
 War.prototype.start = function () {
   this.addShips();
   this.board.drawShips(this.ships);
+
+  $(".container").css( 'cursor', 'url("img/aim_small.png") 16 16, auto' );
+
+  this.registerEvents();
   setTimeout(this.shipsAttack.bind(this),1000);
   this.shipsAttackTimer = setInterval(this.shipsAttack.bind(this), SHIP_ATTACK_DELAY);
   this.checkWallsTimer = setInterval(function(){
@@ -62,7 +67,36 @@ War.prototype.start = function () {
   }.bind(this), 50) 
 }
 
+War.prototype.registerEvents = function() {
+  var ship = {}, cb = function(){};
+  $('.container').mousedown(function(mouse){
+    var cannon = this.players[0].cannons[0];
+
+
+  if($(mouse.target).hasClass('ship')) {
+    var id = $(mouse.target).attr('id');
+    var ship = this.ships.find(function(s){
+      return s.id===id;
+    });
+    ship.damage++;
+  } 
+    this.board.animateShot($(cellSelector(cannon.row, cannon.col)), $(mouse.target) , this.checkDestroyedShips.bind(this));
+
+  }.bind(this))
+}
+
+War.prototype.checkDestroyedShips = function() {
+  for(var i=0; i<this.ships.length; i++) {
+    if(this.ships[i].damage===MAX_SHIP_DAMAGE) {
+      this.board.removeShip(this.ships[i].id);
+      console.log(this.ships)
+      this.ships.splice(i,1);
+      console.log(this.ships)
+    }
+  }
+}
 War.prototype.shipsAttack = function() {
+
   this.ships.forEach(function(ship,index){
     setTimeout(ship.shoot.bind(ship), index*1000*Math.random());
   });
@@ -101,17 +135,20 @@ function Ship(position, player, board) {
   this.col = position.col;
   this.player = player;
   this.board = board;
+  this.id = _.uniqueId();
+  this.damage = 0;
 }
 
 
 Ship.prototype.shoot = function() {
-  console.log("shoot");
+  
   if(this.player.wall.length) {
 
     var wallIndex = Math.floor(Math.random() * this.player.wall.length);
 
     var wall = this.player.wall[wallIndex];
     this.destroyedWall = {row:wall.row, col:wall.col};
+    console.log("destroy wall ship:"+this.id)
     this.player.destroyWall(wallIndex); 
     this.board.animateShot($(cellSelector(this.row, this.col)).find("img"), $(cellSelector(wall.row, wall.col)), this.shootCb.bind(this));
   }
@@ -134,7 +171,7 @@ Cannoner.prototype.init = function() {
 
 Cannoner.prototype.click = function() {
   if(this.newCannonCell) {
-    console.log('here')
+    
     this.player.addCannon(this.newCannonCell);
     this.cannonsPlaced++;
     this.newCannonCell = null;
