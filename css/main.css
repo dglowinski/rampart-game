@@ -1,9 +1,11 @@
 .container {
   height: 300px;
-  margin: 30px auto;
+  margin: 10px auto;
   width: 500px;
 }
-
+body {
+    font-family: 'Press Start 2P', cursive;
+}
 .cell {
   background-size: contain;
   box-sizing: border-box;
@@ -111,4 +113,9 @@
     width:50px;
     
     position:absolute;
+}
+
+.game-message {
+    position:absolute;
+    color:white;
 }

@@ -1,12 +1,18 @@
 var MAX_CANNONS_PER_ROUND = 3;
 var WAR_DURATION = 100000;
-var NEW_SHIPS_PER_ROUND = 3;
-var SHIP_ATTACK_DELAY = 4000;
+var NEW_SHIPS_PER_ROUND = 4;
+var SHIP_ATTACK_DELAY = 3000;
 var MAX_SHIP_DAMAGE = 5;
 var CANNON_DELAY = 2000;
+var SECONDS_WAR = 10;
+var SECONDS_CANNONER = 5;
+var SECONDS_BUILDER = 15;
+
+
+
 function Game() {
   this.players = [];
- 
+  
   this.players.push(new Player('local',0));
   
   this.board = new Board(this.players);
@@ -14,13 +20,18 @@ function Game() {
   this.board.draw();
 
   this.builder = new Builder(this.board, this.players[0]);
-  this.builder.finish();
+ // this.builder.finish();
 
   this.war = new War(this.board, this.players, this.onWarFinish);
 
   this.cannoner = new Cannoner(this.board, this.players[0], this.onCannonerFinish.bind(this));
-  this.cannoner.init();
 
+  this.stage = "begin";
+  this.nextStage();
+
+  //this.cannoner.init();
+
+ 
   
 }/*
   this.duration = 0;
@@ -32,15 +43,75 @@ function Game() {
   }.bind(this), 1000);
 */
 
+Game.prototype.message = function(message, cb) {
+  $message = $('<div>').addClass("game-message animated bounceInDown").html(message);
+  $(".container").append($message);
+  $(".game-message").center();
+  setTimeout(function(){
+    $('.game-message').addClass("zoomOutDown");
+    setTimeout(function(){
+      $('.game-message').remove();
+      cb();
+    }, 1000);
+  }, 2000)
+}
+
 Game.prototype.onCannonerFinish = function () {
-  
-  this.war.start();
+  clearInterval(this.timerId);
+  this.nextStage();
+
+  //this.war.start();
 }
 
-Game.prototype.onWarFinish = function () {
-  console.log('war finished');
+Game.prototype.startTimer = function (seconds) {
+  this.secondsLeft = seconds;
+
+  this.timerId = setInterval(function(){
+    console.log(this.secondsLeft);
+    if(--this.secondsLeft===0) {
+      clearInterval(this.timerId);
+      this.nextStage();
+    }
+  }.bind(this), 1000);
 }
 
+
+Game.prototype.nextStage = function () {
+  switch(this.stage) {
+    case "builder":
+      this.builder.finish();
+    case "begin":
+      this.stage = "cannoner";
+      this.message("Place cannons", this.startStage.bind(this));
+      break;
+    case "war":
+      this.war.finish();
+      this.stage = "builder";
+      this.message("Rebuild walls", this.startStage.bind(this));
+      break;
+    case "cannoner":
+      this.stage = "war";
+      this.message("WAR!!", this.startStage.bind(this));
+      break;
+  }
+}
+
+Game.prototype.startStage = function () {
+  switch(this.stage) {  
+    case "war":
+        this.startTimer(SECONDS_WAR);
+        this.war.start();
+        break;
+    case "cannoner":
+        this.startTimer(SECONDS_CANNONER);
+        this.cannoner.init();
+        break;
+    case "builder":
+        this.startTimer(SECONDS_BUILDER);
+        this.builder.init();
+        break;
+  }
+}
 
 function War(board, players) {
   this.board = board;
@@ -50,6 +121,7 @@ function War(board, players) {
 }
 
 War.prototype.start = function () {
+
   this.addShips();
   this.board.drawShips(this.ships);
 
@@ -67,6 +139,16 @@ War.prototype.start = function () {
   }.bind(this), 50) 
 }
 
+War.prototype.finish = function () {
+  clearInterval(this.shipsAttackTimer);
+  clearInterval(this.checkWallsTimer);
+  $(".container").css('cursor', 'default');
+  this.clearEvents();
+
+}
+War.prototype.clearEvents = function() {
+  $('.container').unbind("mousedown");
+}
 War.prototype.registerEvents = function() {
   var ship = {}, cb = function(){};
   $('.container').mousedown(function(mouse){
@@ -242,6 +324,22 @@ Cannon.prototype.shoot = function () {
   }.bind(this), CANNON_DELAY); 
 }
 
+
+
+
+
+
+
+
+jQuery.fn.center = function () {
+    this.css("position","absolute");
+    this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) + 
+                                                $(window).scrollTop()) + "px");
+    this.css("left", Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) + 
+                                                $(window).scrollLeft()) + "px");
+    return this;
+}
+
 function cellSelector(row, col) {
   return  "[data-row='"+row+"'][data-column='"+col+"']";
 }
@@ -250,6 +348,7 @@ function getMouseTarget(mouse) {
              col: parseInt($(mouse.target).attr('data-column'))
            };
 }
+
 
 
 var game = new Game();

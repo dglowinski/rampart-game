@@ -123,7 +123,7 @@ Board.prototype.drawWalls = function () {
 };
 
 Board.prototype.drawTerritory = function (playerNum) {
-
+  $(".land").removeClass("territory-player-0 territory-player-1 territory-player-2")
   this.players.forEach(function(player) {
     player.territory.forEach(function(ter){
       $(cellSelector(ter.row, ter.col)).addClass("territory-player-"+player.number)
@@ -181,6 +181,7 @@ Board.prototype.canPlaceCannon = function () {
 
 Board.prototype.removeWall = function (wallSeg) {
   $(cellSelector(wallSeg.row, wallSeg.col)).removeClass('wall');
+  this.board[wallSeg.row][wallSeg.col].wall=false;
 }
 Board.prototype.removeShip = function (id) {
   $("#"+id).remove();
@@ -199,22 +200,25 @@ Board.prototype.animateShot = function ($origin, $target, cb) {
   var targetOffset = $target.offset();
   
   var self = this;
-  if(Math.abs(originOffset.left - targetOffset.left) > Math.abs(originOffset.top-targetOffset.top)) {
-    anim1 = {left:targetOffset.left};
-    
-    anim2 = {top:targetOffset.top-50-(targetOffset.top-originOffset.top)*2/3, width:"20", height:"20"};
+ // if(Math.abs(originOffset.left - targetOffset.left) > Math.abs(originOffset.top-targetOffset.top)) {
+  /*  anim1 = {left:targetOffset.left};
+    var z = targetOffset.top-originOffset.top;
+    console.log(z);
+    if(z>50) {
+      var d = z-50+20;
+    } else {
+      d=0;
+    }
+    anim2 = {top:targetOffset.top-50-d, width:"20", height:"20"};
     anim3 = {top:targetOffset.top,width:"10", height:"10"};
-  } else {
-    anim1 = {top:targetOffset.top};
-    if( targetOffset.left > originOffset.left)
-      anim2 = {left:targetOffset.left+50, width:"20", height:"20"};
-    else
-      anim2 = {left:targetOffset.left-50, width:"20", height:"20"};
-    anim3 = {left:targetOffset.left,width:"10", height:"10"};
-  }
+
     $ball.animate(anim1, {queue:false, duration:1500});
     $ball.animate(anim2, 1000);
-    $ball.animate(anim3 ,500, function(){
+    $ball.animate(anim3 ,500, function(){*/
+      
+    $ball.animate({left:targetOffset.left,top:targetOffset.top }, {queue:false, duration:1500});
+    $ball.animate({width:"15", height:"15"}, 750);
+    $ball.animate({width:"10", height:"10"}, 750, function() {
   
     var $explosion = $("<img src='img/explosion.svg' class='explosion'>");
     var explosionOffset = $ball.offset();

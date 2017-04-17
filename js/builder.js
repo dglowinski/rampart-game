@@ -6,13 +6,18 @@ function Builder(board, player) {
   this.segmentDirection = 0; //N
 
   this.segmentFunction = this.getRandomSegment();
-  this.registerEvents();
-
+  
   this.initWalls();
   this.board.drawWalls();
   this.findTerritory();
 
 }
+
+Builder.prototype.init = function() {
+  this.registerEvents();
+  this.findTerritory();
+}
+
 Builder.prototype.getRandomSegment = function () {
   return this.segmentFunctions[Math.floor(Math.random() * this.segmentFunctions.length)];
 }
@@ -127,9 +132,10 @@ Builder.prototype.findTerritory = function() {
 
 Builder.prototype.click = function(mouse) {
   var target = getMouseTarget(mouse);
+
   switch(mouse.which) {
     case 1: //left click
-      if(this.board.canBuildWall(this.segment)) {
+      if(this.board.canBuild(this.segment)) {
         this.player.addWall(this.segment);
         this.board.drawWalls();
 
