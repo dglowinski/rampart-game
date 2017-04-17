@@ -17,6 +17,15 @@ Board.prototype.initBoard = function () {
 });
 }
 
+Board.prototype.reset = function () {
+  this.board.forEach(function (cell) {
+    cell.wall = false;
+  });
+  $(".wall").removeClass("wall");
+  $(".cannon-img").remove();
+  $(".ship").remove();
+
+}
 Board.prototype.loadTerrain = function () {
   this.rows = 30;
   this.columns = 50;
@@ -65,7 +74,7 @@ Board.prototype.draw = function () {
 };
 
 Board.prototype.drawSegment = function (segment) {
-  $(".cell").removeClass('seg-single seg-closed-up seg-closed-down seg-closed-left seg-closed-right seg-through-horizontal seg-through-vertical seg-corner-lu seg-corner-ru seg-corner-rd seg-corner-ld');
+  this.removeSegments();
   if(segment.some(function(seg) {
         return seg.row < 0 || seg.row > this.rows-1 || seg.col<0 || seg.col>this.columns-1;
       }.bind(this))) {
@@ -81,6 +90,9 @@ Board.prototype.drawSegment = function (segment) {
     $(".segment").css('border-color','red');
   }
 };
+Board.prototype.removeSegments = function () {
+  $(".cell").removeClass('seg-single seg-closed-up seg-closed-down seg-closed-left seg-closed-right seg-through-horizontal seg-through-vertical seg-corner-lu seg-corner-ru seg-corner-rd seg-corner-ld');
+}
 
 Board.prototype.drawCannonSegment = function (segment) {
 

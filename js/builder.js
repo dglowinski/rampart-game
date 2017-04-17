@@ -5,16 +5,25 @@ function Builder(board, player) {
   this.segmentFunctions = [seg1, seg2, seg3, segL, segLlarge, seg5];
   this.segmentDirection = 0; //N
 
-  this.segmentFunction = this.getRandomSegment();
+
   
-  this.initWalls();
+ /* this.initWalls();
   this.board.drawWalls();
-  this.findTerritory();
+  this.findTerritory();*/
 
 }
 
+
+
 Builder.prototype.init = function() {
+  this.segmentFunction = this.getRandomSegment();
   this.registerEvents();
+  this.findTerritory();
+}
+
+Builder.prototype.makeCastle = function() {
+  this.initWalls();
+  this.board.drawWalls();
   this.findTerritory();
 }
 
@@ -77,19 +86,6 @@ Builder.prototype.findTerritory = function() {
   
   this.board.drawTerritory();
 
-/*  function flood(board, row, col, maxRows, maxColumns) {
-    if(row < 0 || col < 0 || row>maxRows-1 || col>maxColumns-1) return;
-    
-    
-    if(!board[row][col].flooded && !board[row][col].wall) {
-      board[row][col].flooded = true;
-    
-      flood(board, row-1, col, maxRows, maxColumns);
-      flood(board, row+1, col, maxRows, maxColumns);
-      flood(board, row, col+1, maxRows, maxColumns);
-      flood(board, row, col-1, maxRows, maxColumns);
-    }
-  }*/
   function checkValidFlood(board,row, col, maxRows, maxColumns) {
     if( row < 0 || col < 0 || row>maxRows-1 || col>maxColumns-1
       || board[row][col].flooded || board[row][col].wall ) {
@@ -158,6 +154,8 @@ Builder.prototype.click = function(mouse) {
 }
 
 Builder.prototype.finish = function() {
+  this.board.removeSegments();
   $('.land').unbind("mouseover");
   $(window).unbind("mousedown");
+  
 }

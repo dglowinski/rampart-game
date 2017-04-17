@@ -1,7 +1,7 @@
 var MAX_CANNONS_PER_ROUND = 3;
 var WAR_DURATION = 100000;
 var NEW_SHIPS_PER_ROUND = 4;
-var SHIP_ATTACK_DELAY = 3000;
+var SHIP_ATTACK_DELAY = 4000;
 var MAX_SHIP_DAMAGE = 5;
 var CANNON_DELAY = 2000;
 var SECONDS_WAR = 10;
@@ -20,75 +20,43 @@ function Game() {
   this.board.draw();
 
   this.builder = new Builder(this.board, this.players[0]);
- // this.builder.finish();
-
   this.war = new War(this.board, this.players, this.onWarFinish);
-
   this.cannoner = new Cannoner(this.board, this.players[0], this.onCannonerFinish.bind(this));
 
-  this.stage = "begin";
-  this.nextStage();
-
-  //this.cannoner.init();
-
- 
-  
-}/*
-  this.duration = 0;
-  this.timerId = setInterval(function() {
-    if(++this.duration === WAR_DURATION) {
-      clearInterval(this.timerId)
-      this.finish();
-    }
-  }.bind(this), 1000);
-*/
-
-Game.prototype.message = function(message, cb) {
-  $message = $('<div>').addClass("game-message animated bounceInDown").html(message);
-  $(".container").append($message);
-  $(".game-message").center();
-  setTimeout(function(){
-    $('.game-message').addClass("zoomOutDown");
-    setTimeout(function(){
-      $('.game-message').remove();
-      cb();
-    }, 1000);
-  }, 2000)
+  this.gameOptions(); 
 }
 
-Game.prototype.onCannonerFinish = function () {
-  clearInterval(this.timerId);
-  this.nextStage();
-
-  //this.war.start();
-}
-
-Game.prototype.startTimer = function (seconds) {
-  this.secondsLeft = seconds;
-
-  this.timerId = setInterval(function(){
-    console.log(this.secondsLeft);
-    if(--this.secondsLeft===0) {
-      clearInterval(this.timerId);
-      this.nextStage();
-    }
-  }.bind(this), 1000);
-}
 
 
 Game.prototype.nextStage = function () {
   switch(this.stage) {
+    case "begin":
+     // this.players[0].reset();
+     // this.war.reset();
+     // this.board.reset();
+      this.builder.makeCastle();
+      this.stage = "cannoner";
+      this.message("Place cannons", this.startStage.bind(this));
+      break
+ 
     case "builder":
       this.builder.finish();
-    case "begin":
+
+      if(this.players[0].territory.length===0) {
+        this.gameOver();
+        return;
+      }
+ 
       this.stage = "cannoner";
       this.message("Place cannons", this.startStage.bind(this));
       break;
+ 
     case "war":
       this.war.finish();
       this.stage = "builder";
       this.message("Rebuild walls", this.startStage.bind(this));
       break;
+ 
     case "cannoner":
       this.stage = "war";
       this.message("WAR!!", this.startStage.bind(this));
@@ -111,6 +79,59 @@ Game.prototype.startStage = function () {
         this.builder.init();
         break;
   }
+}
+
+Game.prototype.gameOver = function () {
+  this.message("GAME OVER", this.gameOptions.bind(this));
+}
+
+Game.prototype.gameOptions = function () {
+  $message = $('<div>').addClass("game-options animated flipInX").html("Start game");
+  $(".container").append($message);
+  $(".game-options").center();
+  $(".game-options").mouseover(function() {
+    $(this).removeClass("flipInX");
+    $(this).addClass("pulse infinite game-options-over");
+  });
+   $(".game-options").mouseout(function() {
+     $(this).removeClass("pulse infinite game-options-over");
+   })
+   $(".game-options").click(function(){
+      $(".game-options").remove();
+      this.stage = "begin";
+      this.nextStage();
+   }.bind(this));
+}
+
+
+Game.prototype.message = function(message, cb) {
+  $message = $('<div>').addClass("game-message animated bounceInDown").html(message);
+  $(".container").append($message);
+  $(".game-message").center();
+  setTimeout(function(){
+    $('.game-message').addClass("zoomOutDown");
+    setTimeout(function(){
+      $('.game-message').remove();
+      cb();
+    }, 1000);
+  }, 2000)
+}
+
+Game.prototype.onCannonerFinish = function () {
+  clearInterval(this.timerId);
+  this.nextStage();
+}
+
+Game.prototype.startTimer = function (seconds) {
+  this.secondsLeft = seconds;
+
+  this.timerId = setInterval(function(){
+    console.log(this.secondsLeft);
+    if(--this.secondsLeft===0) {
+      clearInterval(this.timerId);
+      this.nextStage();
+    }
+  }.bind(this), 1000);
 }
 
 function War(board, players) {
@@ -139,16 +160,21 @@ War.prototype.start = function () {
   }.bind(this), 50) 
 }
 
+War.prototype.reset = function () {
+  this.ships = [];
+}
+
 War.prototype.finish = function () {
   clearInterval(this.shipsAttackTimer);
   clearInterval(this.checkWallsTimer);
   $(".container").css('cursor', 'default');
   this.clearEvents();
+};
 
-}
 War.prototype.clearEvents = function() {
   $('.container').unbind("mousedown");
-}
+};
+
 War.prototype.registerEvents = function() {
   var ship = {}, cb = function(){};
   $('.container').mousedown(function(mouse){
@@ -169,7 +195,7 @@ War.prototype.registerEvents = function() {
       this.board.animateShot($(cellSelector(cannon.row, cannon.col)), $(mouse.target) , this.checkDestroyedShips.bind(this));
     }
    }.bind(this))
-}
+};
 
 War.prototype.checkDestroyedShips = function() {
   for(var i=0; i<this.ships.length; i++) {
@@ -178,19 +204,20 @@ War.prototype.checkDestroyedShips = function() {
       this.ships.splice(i,1);
     }
   }
-}
+};
+
 War.prototype.shipsAttack = function() {
 
   this.ships.forEach(function(ship,index){
     setTimeout(ship.shoot.bind(ship), index*1000*Math.random());
   });
-}
+};
 
 War.prototype.addShips = function () {
   for(var i=0; i<NEW_SHIPS_PER_ROUND; i++) {
     this.ships.push(new Ship(this.getRandomShipPosition(), this.players[0], this.board));
   }
-}
+};
 
 War.prototype.getRandomShipPosition = function () {
   var isCorrectPosition = false, row, col, hasLand, hasShip;
@@ -212,7 +239,7 @@ War.prototype.getRandomShipPosition = function () {
     
   } while(!isCorrectPosition);
   return {row:row, col:col};
-}
+};
 
 function Ship(position, player, board) {
   this.row = position.row;
@@ -232,14 +259,18 @@ Ship.prototype.shoot = function() {
 
     var wall = this.player.wall[wallIndex];
     this.destroyedWall = {row:wall.row, col:wall.col};
+    console.log("ship "+this.id);
+    console.log(wall);
     
     this.player.destroyWall(wallIndex); 
     this.board.animateShot($(cellSelector(this.row, this.col)).find("img"), $(cellSelector(wall.row, wall.col)), this.shootCb.bind(this));
   }
-}
+};
 Ship.prototype.shootCb = function() {
+  console.log("ship "+this.id);
+  console.log(this.destroyedWall);
   this.board.removeWall(this.destroyedWall);
-}
+};
 
 function Cannoner(board, player, finishCb) {
   this.board = board;
@@ -251,7 +282,7 @@ Cannoner.prototype.init = function() {
     $('.territory-player-'+this.player.number).mouseover(this.moveCannon.bind(this));
     $('.territory-player-'+this.player.number).mousedown(this.click.bind(this));
     this.cannonsPlaced = 0;
-}
+};
 
 Cannoner.prototype.click = function(event) {
   if(this.newCannonCell) {
@@ -265,13 +296,13 @@ Cannoner.prototype.click = function(event) {
       this.finish();
     }
   }
-}
+};
 
 Cannoner.prototype.finish = function() {
   $('.territory-player-'+this.player.number).unbind("mouseover");
   $('.territory-player-'+this.player.number).unbind("mousedown");
   this.onFinishCb();
-}
+};
 
 
 Cannoner.prototype.moveCannon = function(mouse) {
@@ -279,11 +310,11 @@ Cannoner.prototype.moveCannon = function(mouse) {
   this.getSegment(target.row, target.col);
   var cell = this.board.drawCannonSegment(this.segment); 
   if(cell) this.newCannonCell = cell;
-}
+};
 
 Cannoner.prototype.getSegment = function(row, col) {
   this.segment = segCannon(row, col)  
-}
+};
 
 function Player(type,number) {
   this.number = number;
@@ -298,20 +329,25 @@ Player.prototype.addWall = function (segment) {
     this.wall.push({row:seg.row, col:seg.col});
   }.bind(this));
 };
+
 Player.prototype.addTerritory = function (cell) {
   this.territory.push(cell);
-}
+};
 
 Player.prototype.addCannon= function (cell) {
-
   this.cannons.push(new Cannon(cell));
-}
+};
 
 Player.prototype.destroyWall= function (wallIndex) {
-  
-  
   this.wall.splice(wallIndex, 1);
-}
+};
+
+Player.prototype.reset= function () {
+  this.wall = [];
+  this.cannons = [];
+  this.territory = [];
+};
+
 function Cannon(cell) {
   this.row = cell.row;
   this.col = cell.col;

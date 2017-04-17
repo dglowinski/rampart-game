@@ -1,6 +1,6 @@
 .container {
   height: 300px;
-  margin: 10px auto;
+  margin: 0px auto;
   width: 500px;
 }
 body {
@@ -118,4 +118,12 @@ body {
 .game-message {
     position:absolute;
     color:white;
+}
+
+.game-options {
+    color:white;
+}
+
+.game-options-over {
+    color:red;
 }
