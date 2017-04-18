@@ -14,12 +14,13 @@ function Game() {
   this.players = [];
   
   this.players.push(new Player('local',0));
-  
+  this.players.push(new Player('remote',1));
+
   this.board = new Board(this.players);
   this.board.initBoard();
   this.board.draw();
   
-  this.remote = new Remote(this.board);
+  this.remote = new Remote(this.board, this.players[1]);
 
   this.builder = new Builder(this.board, this.players[0], this.remote);
   this.war = new War(this.board, this.players, this.onWarFinish, this.remote);

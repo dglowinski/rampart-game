@@ -148,6 +148,8 @@ Builder.prototype.click = function(mouse) {
     case 1: //left click
       if(this.board.canBuild(this.segment)) {
         this.player.addWall(this.segment);
+        this.remote.emit('draw-wall', this.segment);
+        
         this.board.drawWalls();
 
         this.findTerritory();
