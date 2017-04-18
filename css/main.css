@@ -133,3 +133,8 @@ body {
     pointer-events: none;
     font-size:30px;
 }
+
+#icons-author {
+    font-family: Arial;
+    font-size: 10px;
+}
