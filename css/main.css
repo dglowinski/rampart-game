@@ -88,8 +88,25 @@ body {
 }
 
 .territory-player-0 {
-  background-color:grey;
+
+    background-image:
+      -moz-linear-gradient(45deg, grey 25%, transparent 25%), 
+      -moz-linear-gradient(-45deg, grey 25%, transparent 25%),
+      -moz-linear-gradient(45deg, white 75%, grey 75%),
+      -moz-linear-gradient(-45deg, white 75%, grey 75%);
+    background-image:
+      -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, dimgrey), color-stop(.25, transparent)), 
+      -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, dimgrey), color-stop(.25, transparent)),
+      -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, dimgrey)),
+      -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, gray), color-stop(.75, dimgrey));
+
+    -moz-background-size:10px 10px;
+    background-size:10px 10px;
+    -webkit-background-size:10px 11px; /* override value for shitty webkit */
+    
+    background-position:0 0, 5px 0, 5px -5px, 0px 5px;
 }
+
 .cannon-img {
     width:20px;
     height:20px;
