@@ -195,10 +195,30 @@ Board.prototype.canPlaceCannon = function () {
 Board.prototype.removeWall = function (wallSeg) {
   $(cellSelector(wallSeg.row, wallSeg.col)).removeClass('wall');
   this.board[wallSeg.row][wallSeg.col].wall=false;
-}
+};
+
 Board.prototype.removeShip = function (id) {
   $("#"+id).remove();
-}
+};
+
+Board.prototype.animateShotShip = function ($ship) {
+  $ship.attr("src", "img/ship_fire.svg");
+  setTimeout(function(){
+     $ship.attr("src", "img/ship2.svg");
+  }, 300)
+};
+
+Board.prototype.animateShotCannon = function ($cannon) {
+  var offset = $cannon.offset();
+  
+  var $img = $("<img class='fire' src='img/fire.png'>");
+   offset.left-=10;
+  $img.offset(offset);
+  $('.container').append($img);
+  setTimeout(function(){
+     $img.remove();
+  }, 300)
+};
 
 Board.prototype.animateShot = function ($origin, $target, cb) {
   var anim1, anim2, anim3;

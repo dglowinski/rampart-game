@@ -3,7 +3,7 @@ var WAR_DURATION = 100000;
 var NEW_SHIPS_PER_ROUND = 4;
 var SHIP_ATTACK_DELAY = 4000;
 var MAX_SHIP_DAMAGE = 5;
-var CANNON_DELAY = 2000;
+var CANNON_DELAY = 2500;
 var SECONDS_WAR = 15;
 var SECONDS_CANNONER = 5;
 var SECONDS_BUILDER = 15;
@@ -206,6 +206,7 @@ War.prototype.registerEvents = function() {
           return s.id===id;
         });
       } 
+      this.board.animateShotCannon($(cellSelector(cannon.row, cannon.col)));
       this.board.animateShot($(cellSelector(cannon.row, cannon.col)), $(mouse.target) , this.checkDestroyedShip.bind(this, ship));
     }
    }.bind(this))
@@ -284,6 +285,7 @@ Ship.prototype.shoot = function() {
     var wall = this.player.wall[wallIndex];
     this.destroyedWall = {row:wall.row, col:wall.col};
     this.player.destroyWall(wallIndex); 
+    this.board.animateShotShip($(cellSelector(this.row, this.col)).find("img"));
     this.board.animateShot($(cellSelector(this.row, this.col)).find("img"), $(cellSelector(wall.row, wall.col)), this.shootCb.bind(this));
   }
 };

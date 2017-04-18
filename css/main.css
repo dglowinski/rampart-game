@@ -15,7 +15,7 @@ body {
 }
 
 .water {
-  background-color: blue;
+  background-color: steelblue;
 }
 .land {
   background-color: green;
@@ -88,23 +88,26 @@ body {
 }
 
 .territory-player-0 {
-
+/*
     background-image:
       -moz-linear-gradient(45deg, grey 25%, transparent 25%), 
       -moz-linear-gradient(-45deg, grey 25%, transparent 25%),
       -moz-linear-gradient(45deg, white 75%, grey 75%),
       -moz-linear-gradient(-45deg, white 75%, grey 75%);
     background-image:
-      -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, dimgrey), color-stop(.25, transparent)), 
-      -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, dimgrey), color-stop(.25, transparent)),
-      -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, dimgrey)),
-      -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, gray), color-stop(.75, dimgrey));
+      -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.25, #210175), color-stop(.25, transparent)), 
+      -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, #210175), color-stop(.25, transparent)),
+      -webkit-gradient(linear, 0 100%, 100% 0, color-stop(.75, transparent), color-stop(.75, #210175)),
+      -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.75, #004f8d), color-stop(.75, #210175));
 
     -moz-background-size:10px 10px;
     background-size:10px 10px;
-    -webkit-background-size:10px 11px; /* override value for shitty webkit */
+    -webkit-background-size:10px 11px; 
     
     background-position:0 0, 5px 0, 5px -5px, 0px 5px;
+*/
+    background-color: grey;
+
 }
 
 .cannon-img {
@@ -120,11 +123,17 @@ body {
     position:absolute;
 }
 
-.cannonball {
+.cannonball  {
     width:10px;
    
     position:absolute;
 }
+.fire  {
+    width:15px;
+   
+    position:absolute;
+}
+
 
 .explosion {
     width:50px;
