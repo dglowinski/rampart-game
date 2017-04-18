@@ -37,7 +37,7 @@ Game.prototype.nextStage = function () {
       this.builder.makeCastle();
       this.stage = "cannoner";
       this.message("Place cannons", this.startStage.bind(this));
-      break
+      break;
  
     case "builder":
       this.builder.finish();
@@ -58,6 +58,7 @@ Game.prototype.nextStage = function () {
       break;
  
     case "cannoner":
+      this.cannoner.finish();
       this.stage = "war";
       this.message("WAR!!", this.startStage.bind(this));
       break;
@@ -301,15 +302,15 @@ Cannoner.prototype.click = function(event) {
     this.board.drawCannon();
     if(!this.board.canPlaceCannon() || this.cannonsPlaced === MAX_CANNONS_PER_ROUND) {
       event.stopPropagation();
-      this.finish();
+      this.finish(true);
     }
   }
 };
 
-Cannoner.prototype.finish = function() {
+Cannoner.prototype.finish = function(withCb) {
   $('.territory-player-'+this.player.number).unbind("mouseover");
   $('.territory-player-'+this.player.number).unbind("mousedown");
-  this.onFinishCb();
+  if(withCb) this.onFinishCb();
 };
 
 
