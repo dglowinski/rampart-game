@@ -35,10 +35,13 @@ Board.prototype.loadTerrain = function () {
       this.board[rowIndex].push(rowIndex>colIndex ? {terrain:'water'} : {terrain:'land'})
     }
   }
-  this.castle = {
-    row: 10,
-    col: 35
-  }
+  this.castles = [{
+    row: 20,
+    col: 40
+  },{
+    row: 7,
+    col: 20
+  }]
 
 /*  this.rows = 13;
   this.columns = 12;
@@ -65,7 +68,7 @@ Board.prototype.draw = function () {
       if(cell.terrain==="water") {
         $(selector).addClass('water');
       }
-      if(rowIndex === this.castle.row && colIndex === this.castle.col) {
+      if(isCellInside({row:rowIndex, col:colIndex}, this.castles)) {
         $(selector).append("<img class='castle' src='img/castle.svg'>");
       }
     }.bind(this));
@@ -179,10 +182,16 @@ Board.prototype.canBuild = function (segment) {
   }.bind(this));
 
   var hasCastle = segment.some(function(seg){
-    return this.castle.row === seg.row && this.castle.col === seg.col ||
-           this.castle.row+1 === seg.row && this.castle.col === seg.col ||
-           this.castle.row === seg.row && this.castle.col+1 === seg.col ||
-           this.castle.row+1 === seg.row && this.castle.col+1 === seg.col;
+
+    return this.castles.some(function(castle){
+      return castle.row === seg.row && castle.col === seg.col ||
+            castle.row+1 === seg.row && castle.col === seg.col ||
+            castle.row === seg.row && castle.col+1 === seg.col ||
+            castle.row+1 === seg.row && castle.col+1 === seg.col;
+
+    })
+
+    
   }.bind(this));
   return !(hasWater || hasWall || hasCannon || hasCastle);
 };

@@ -34,7 +34,7 @@ function Game() {
 
 Game.prototype.onConnect = function (role) {
   this.masterSlave = role;
-  
+  this.players[0].masterSlave = role
   $("#game-waiting").html("GAME ON!").center();
   setTimeout(function(){
     $("#game-waiting").remove();
@@ -384,6 +384,7 @@ Player.prototype.addWall = function (segment) {
   segment.forEach(function(seg){
     this.wall.push({row:seg.row, col:seg.col});
   }.bind(this));
+  
 };
 
 Player.prototype.addTerritory = function (cell) {
@@ -457,6 +458,10 @@ function getMouseTarget(mouse) {
            };
 }
 
-
+function isCellInside(cell, area) {
+  return area.find(function(a) {
+    return cell.row === a.row && cell.col === a.col;
+  })
+}
 
 var game = new Game();

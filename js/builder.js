@@ -33,13 +33,18 @@ Builder.prototype.getRandomSegment = function () {
 }
 
 Builder.prototype.initWalls = function () {
+  var castleNum = this.player.masterSlave === "master" ? 0 : 1;
   for(var i=0; i<8; i++) {
-    this.player.addWall([{row:this.board.castle.row-3, col:this.board.castle.col-3+i}]);
-    this.player.addWall([{row:this.board.castle.row+4, col:this.board.castle.col-3+i}]);
+    this.player.addWall([{row:this.board.castles[castleNum].row-3, col:this.board.castles[castleNum].col-3+i}]);
+    this.player.addWall([{row:this.board.castles[castleNum].row+4, col:this.board.castles[castleNum].col-3+i}]);
+    this.remote.emit('draw-wall', [{row:this.board.castles[castleNum].row-3, col:this.board.castles[castleNum].col-3+i}]);
+    this.remote.emit('draw-wall', [{row:this.board.castles[castleNum].row+4, col:this.board.castles[castleNum].col-3+i}]);
   }
   for(var i=0; i<6; i++) {
-    this.player.addWall([{row:this.board.castle.row-2+i, col:this.board.castle.col-3}]);
-    this.player.addWall([{row:this.board.castle.row-2+i, col:this.board.castle.col+4}]);
+    this.player.addWall([{row:this.board.castles[castleNum].row-2+i, col:this.board.castles[castleNum].col-3}]);
+    this.player.addWall([{row:this.board.castles[castleNum].row-2+i, col:this.board.castles[castleNum].col+4}]);
+    this.remote.emit('draw-wall', [{row:this.board.castles[castleNum].row-2+i, col:this.board.castles[castleNum].col-3}]);
+    this.remote.emit('draw-wall', [{row:this.board.castles[castleNum].row-2+i, col:this.board.castles[castleNum].col+4}]);
   }
 }
 Builder.prototype.registerEvents = function () {
