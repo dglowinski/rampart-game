@@ -127,3 +127,9 @@ body {
 .game-options-over {
     color:red;
 }
+.timer {
+    color: white;
+    position:absolute;
+    pointer-events: none;
+    font-size:30px;
+}

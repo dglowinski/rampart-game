@@ -124,11 +124,14 @@ Game.prototype.onCannonerFinish = function () {
 
 Game.prototype.startTimer = function (seconds) {
   this.secondsLeft = seconds;
-
+  this.board.drawTimer(this.secondsLeft);
   this.timerId = setInterval(function(){
-    console.log(this.secondsLeft);
-    if(--this.secondsLeft===0) {
+    this.secondsLeft--;
+    this.board.drawTimer(this.secondsLeft);
+    
+    if(this.secondsLeft===0) {
       clearInterval(this.timerId);
+      this.board.hideTimer(this.secondsLeft);
       this.nextStage();
     }
   }.bind(this), 1000);

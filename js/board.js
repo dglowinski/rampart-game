@@ -246,4 +246,23 @@ Board.prototype.animateShot = function ($origin, $target, cb) {
       $explosion.remove();
     }.bind(this), 200)
   });
-}
+};
+
+Board.prototype.drawTimer = function (seconds) {
+
+  var $timer = $('.timer'), offset; 
+  $timer.remove();
+  $timer = $('<div class="timer animated">');
+  offset = $('.container').offset();
+  offset.top+=10;
+  offset.left+=30;
+  $timer.offset(offset);
+  $(".container").append($timer);
+  
+  $timer.html(seconds).addClass("flipInX");
+
+};
+
+Board.prototype.hideTimer = function () {
+  $('.timer').remove();
+};
