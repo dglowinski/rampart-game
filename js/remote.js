@@ -1,23 +1,30 @@
-function Remote(board, player) {
+function Remote(board, player, onConnect) {
   this.board = board;
   this.player = player;
-  this.socket = io('https://safe-falls-11425.herokuapp.com');
-  this.socket.emit('who-is-master', null);
-  this.socket.on('message', function(msg){
+  this.onConnect = onConnect;
 
+}
+Remote.prototype.init = function(type, obj) {
+  console.log("remote init");
+  this.socket = io('https://safe-falls-11425.herokuapp.com');
+  this.emit('you-are-master', {});
+  this.socket.on('message', function(msg){
+    console.log("message "+msg.type)
    switch(msg.type) {
      case "draw-segment": this.moveSegment(msg.obj); break;
      case "segment-valid": this.segmentValid(msg.obj); break;
      case "draw-wall": this.drawWall(msg.obj); break;
      case "draw-territory": this.drawTerritory(msg.obj); break;
-     case "who-is-master": this.setMaster(); break;
+     case "you-are-master": this.setMaster(); break;
      case "you-are-slave": this.setSlave(); break;
    }
   }.bind(this));
 }
 
 Remote.prototype.emit = function(type, obj) {
-  this.socket.emit('message', {type:type, obj:obj});
+  if(this.socket) {
+      this.socket.emit('message', {type:type, obj:obj});
+  }
 }
 
 Remote.prototype.moveSegment = function(segment) {
@@ -44,9 +51,12 @@ Remote.prototype.drawTerritory = function(territory) {
 
 Remote.prototype.setMaster = function(territory) {
   this.isMaster = true;
+  console.log('master');
+  this.onConnect('master');
   this.emit("you-are-slave", null);
 }
 
-Remote.prototype.setMaster = function(territory) {
+Remote.prototype.setSlave = function(territory) {
+  this.onConnect('slave');
   this.isSlave = true;
 }

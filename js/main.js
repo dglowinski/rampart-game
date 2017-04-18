@@ -20,16 +20,27 @@ function Game() {
   this.board.initBoard();
   this.board.draw();
   
-  this.remote = new Remote(this.board, this.players[1]);
+  this.isMultiplayer = false;
+  this.remote = new Remote(this.board, this.players[1], this.onConnect.bind(this));
 
   this.builder = new Builder(this.board, this.players[0], this.remote);
   this.war = new War(this.board, this.players, this.onWarFinish, this.remote);
   this.cannoner = new Cannoner(this.board, this.players[0], this.onCannonerFinish.bind(this), this.remote);
   
+  this.stage = "begin";
+
   this.gameOptions(); 
 }
 
-
+Game.prototype.onConnect = function (role) {
+  this.masterSlave = role;
+  
+  $("#game-waiting").html("GAME ON!").center();
+  setTimeout(function(){
+    $("#game-waiting").remove();
+    this.nextStage();
+  }.bind(this), 1000) 
+}
 
 Game.prototype.nextStage = function () {
   switch(this.stage) {
@@ -90,14 +101,20 @@ Game.prototype.startStage = function () {
 }
 
 Game.prototype.gameOver = function () {
-
   this.message("GAME OVER", this.gameOptions.bind(this));
 }
 
 Game.prototype.gameOptions = function () {
-  $message = $('<div>').addClass("game-options animated flipInX").html("Start game");
+  $message = $('<div>').addClass("game-options animated flipInX").html("Start single").attr("id", "game-option-single");
   $(".container").append($message);
-  $(".game-options").center();
+  $message.center().css('top', "-=20px");
+  
+ 
+  $message = $('<div>').addClass("game-options animated flipInX").html("Start multi").attr("id", "game-option-multi");
+  $(".container").append($message);
+  $message.center().css('top', "+=20px");
+
+ 
   $(".game-options").mouseover(function() {
     $(this).removeClass("flipInX");
     $(this).addClass("pulse infinite game-options-over");
@@ -105,15 +122,25 @@ Game.prototype.gameOptions = function () {
    $(".game-options").mouseout(function() {
      $(this).removeClass("pulse infinite game-options-over");
    })
-   $(".game-options").click(function(){
-      $(".game-options").remove();
-      //this.stage = "begin";
 
+   $("#game-option-single").click(function(){
+      $(".game-options").remove();
       this.stage = "war";
 
       this.nextStage();
    }.bind(this));
-}
+
+  $("#game-option-multi").click(function(){
+      $(".game-options").remove();
+      this.isMultiplayer = true;
+      this.remote.init();
+      $message = $('<div>').addClass("game-options animated flash infinite").html("Waiting for player 2...").attr("id", "game-waiting");
+       $(".container").append($message);
+       $message.center();
+   }.bind(this));
+
+
+};
 
 
 Game.prototype.message = function(message, cb) {
