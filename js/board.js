@@ -111,7 +111,7 @@ Board.prototype.drawCannonSegment = function (segment) {
       $(cellSelector(seg.row, seg.col)).addClass(seg.type).addClass("cannon-segment");
     });
 
-    $(cellSelector(segment[0].row, segment[0].col)).html("<img src='img/cannon.svg' class='cannon-img'>")
+    $(cellSelector(segment[0].row, segment[0].col)).html("<img src='img/cannon_left.svg' class='cannon-img'>")
                                                    .addClass("cannon-segment-main");
     
 
@@ -203,50 +203,52 @@ Board.prototype.removeShip = function (id) {
 Board.prototype.animateShot = function ($origin, $target, cb) {
   var anim1, anim2, anim3;
   var originOffset = $origin.offset();
-  originOffset.top+=5;
-  originOffset.left+=5;
+  if($origin.length) {
+    originOffset.top+=5;
+    originOffset.left+=5;
 
-  var $ball = $("<img src='img/cannonball.svg' class='cannonball'>");
-  $(".container").append($ball);
-  $ball.offset(originOffset);
+    var $ball = $("<img src='img/cannonball.svg' class='cannonball'>");
+    $(".container").append($ball);
+    $ball.offset(originOffset);
 
-  var targetOffset = $target.offset();
-  
-  var self = this;
- // if(Math.abs(originOffset.left - targetOffset.left) > Math.abs(originOffset.top-targetOffset.top)) {
-  /*  anim1 = {left:targetOffset.left};
-    var z = targetOffset.top-originOffset.top;
-    console.log(z);
-    if(z>50) {
-      var d = z-50+20;
-    } else {
-      d=0;
-    }
-    anim2 = {top:targetOffset.top-50-d, width:"20", height:"20"};
-    anim3 = {top:targetOffset.top,width:"10", height:"10"};
-
-    $ball.animate(anim1, {queue:false, duration:1500});
-    $ball.animate(anim2, 1000);
-    $ball.animate(anim3 ,500, function(){*/
-      
-    $ball.animate({left:targetOffset.left,top:targetOffset.top }, {queue:false, duration:1500});
-    $ball.animate({width:"15", height:"15"}, 750);
-    $ball.animate({width:"10", height:"10"}, 750, function() {
-  
-    var $explosion = $("<img src='img/explosion.svg' class='explosion'>");
-    var explosionOffset = $ball.offset();
-    explosionOffset.top-=5;
-    explosionOffset.left-=8;
-
-    $explosion.offset(explosionOffset);
-    $ball.remove();
-    $('.container').append($explosion);
-    cb();
+    var targetOffset = $target.offset();
     
-    setTimeout(function(){
-      $explosion.remove();
-    }.bind(this), 200)
-  });
+    var self = this;
+  // if(Math.abs(originOffset.left - targetOffset.left) > Math.abs(originOffset.top-targetOffset.top)) {
+    /*  anim1 = {left:targetOffset.left};
+      var z = targetOffset.top-originOffset.top;
+      console.log(z);
+      if(z>50) {
+        var d = z-50+20;
+      } else {
+        d=0;
+      }
+      anim2 = {top:targetOffset.top-50-d, width:"20", height:"20"};
+      anim3 = {top:targetOffset.top,width:"10", height:"10"};
+
+      $ball.animate(anim1, {queue:false, duration:1500});
+      $ball.animate(anim2, 1000);
+      $ball.animate(anim3 ,500, function(){*/
+        
+      $ball.animate({left:targetOffset.left,top:targetOffset.top }, {queue:false, duration:1500});
+      $ball.animate({width:"15", height:"15"}, 750);
+      $ball.animate({width:"10", height:"10"}, 750, function() {
+    
+      var $explosion = $("<img src='img/explosion.svg' class='explosion'>");
+      var explosionOffset = $ball.offset();
+      explosionOffset.top-=5;
+      explosionOffset.left-=8;
+
+      $explosion.offset(explosionOffset);
+      $ball.remove();
+      $('.container').append($explosion);
+      cb();
+      
+      setTimeout(function(){
+        $explosion.remove();
+      }.bind(this), 200)
+    });
+  }
 };
 
 Board.prototype.drawTimer = function (seconds) {

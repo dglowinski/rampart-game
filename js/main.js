@@ -4,7 +4,7 @@ var NEW_SHIPS_PER_ROUND = 4;
 var SHIP_ATTACK_DELAY = 4000;
 var MAX_SHIP_DAMAGE = 5;
 var CANNON_DELAY = 2000;
-var SECONDS_WAR = 10;
+var SECONDS_WAR = 15;
 var SECONDS_CANNONER = 5;
 var SECONDS_BUILDER = 15;
 
@@ -31,9 +31,9 @@ function Game() {
 Game.prototype.nextStage = function () {
   switch(this.stage) {
     case "begin":
-     // this.players[0].reset();
-     // this.war.reset();
-     // this.board.reset();
+      this.players[0].reset();
+      this.war.reset();
+      this.board.reset();
       this.builder.makeCastle();
       this.stage = "cannoner";
       this.message("Place cannons", this.startStage.bind(this));
@@ -109,7 +109,7 @@ Game.prototype.message = function(message, cb) {
   $(".container").append($message);
   $(".game-message").center();
   setTimeout(function(){
-    $('.game-message').addClass("zoomOutDown");
+    $('.game-message').addClass("fadeOutDown");
     setTimeout(function(){
       $('.game-message').remove();
       cb();
@@ -141,7 +141,7 @@ function War(board, players) {
   this.board = board;
   this.players = players;
   this.ships = [];
-  
+  this.shipsDestroyed = 0;
 }
 
 War.prototype.start = function () {
@@ -165,6 +165,7 @@ War.prototype.start = function () {
 
 War.prototype.reset = function () {
   this.ships = [];
+  this.shipsDestroyed = 0;
 }
 
 War.prototype.finish = function () {
@@ -193,20 +194,29 @@ War.prototype.registerEvents = function() {
         var ship = this.ships.find(function(s){
           return s.id===id;
         });
-        ship.damage++;
       } 
-      this.board.animateShot($(cellSelector(cannon.row, cannon.col)), $(mouse.target) , this.checkDestroyedShips.bind(this));
+      this.board.animateShot($(cellSelector(cannon.row, cannon.col)), $(mouse.target) , this.checkDestroyedShip.bind(this, ship));
     }
    }.bind(this))
 };
 
-War.prototype.checkDestroyedShips = function() {
+War.prototype.checkDestroyedShip = function(ship) {
+  /*
   for(var i=0; i<this.ships.length; i++) {
     if(this.ships[i].damage>=MAX_SHIP_DAMAGE) {
-      this.board.removeShip(this.ships[i].id);
+      this.board.removeShip(this.ships[i].id);ship.damage++;
       this.ships.splice(i,1);
     }
   }
+  */
+    if(ship) {
+      ship.damage++;
+      if(ship.damage>=MAX_SHIP_DAMAGE) {
+        this.board.removeShip(ship.id);
+        _.remove(this.ships, function(s){return s.id === ship.id;});
+        this.shipsDestroyed++;
+      }
+    }
 };
 
 War.prototype.shipsAttack = function() {
@@ -262,16 +272,11 @@ Ship.prototype.shoot = function() {
 
     var wall = this.player.wall[wallIndex];
     this.destroyedWall = {row:wall.row, col:wall.col};
-    console.log("ship "+this.id);
-    console.log(wall);
-    
     this.player.destroyWall(wallIndex); 
     this.board.animateShot($(cellSelector(this.row, this.col)).find("img"), $(cellSelector(wall.row, wall.col)), this.shootCb.bind(this));
   }
 };
 Ship.prototype.shootCb = function() {
-  console.log("ship "+this.id);
-  console.log(this.destroyedWall);
   this.board.removeWall(this.destroyedWall);
 };
 
@@ -372,10 +377,11 @@ Cannon.prototype.shoot = function () {
 
 jQuery.fn.center = function () {
     this.css("position","absolute");
-    this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) + 
-                                                $(window).scrollTop()) + "px");
-    this.css("left", Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) + 
-                                                $(window).scrollLeft()) + "px");
+    ;
+    this.css("top", this.parent().offset().top+Math.max(0, (($(".container").height() - $(this).outerHeight()) / 2))+"px"); 
+                                                //$(window).scrollTop()) + "px");
+    this.css("left", this.parent().offset().left+Math.max(0, (($(".container").width() - $(this).outerWidth()) / 2))+"px"); 
+                                                //$(window).scrollLeft()) + "px");
     return this;
 }
 
