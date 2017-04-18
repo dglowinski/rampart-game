@@ -79,11 +79,11 @@ Builder.prototype.findTerritory = function() {
       el.flooded=false;
     });
   });
-
+  var walls = this.player.wall;
   this.board.board.forEach(function(row, rowIndex, board){
     row.forEach(function(el, colIndex) {
       if(board[rowIndex][colIndex].terrain==='water' || rowIndex===0 || rowIndex===maxRows-1 || colIndex===0 || colIndex===maxColumns-1 ) {
-        flood(board,rowIndex, colIndex, maxRows, maxColumns);
+        flood(board,rowIndex, colIndex, maxRows, maxColumns, walls);
       }
     });
   });
@@ -92,47 +92,52 @@ Builder.prototype.findTerritory = function() {
 
   this.board.board.forEach(function(row, rowIndex){
     row.forEach(function(el, colIndex) {
-      if(!el.flooded && !el.wall) {
+
+      if(!el.flooded && !isWall({row:rowIndex, col:colIndex}, walls)) {
         this.player.addTerritory({row:rowIndex, col:colIndex})
-        
-      }
+       }
     }.bind(this));
   }.bind(this));
-  
+  this.remote.emit("draw-territory",this.player.territory);
   this.board.drawTerritory();
 
-  function checkValidFlood(board,row, col, maxRows, maxColumns) {
+  function checkValidFlood(board,row, col, maxRows, maxColumns, walls) {
     if( row < 0 || col < 0 || row>maxRows-1 || col>maxColumns-1
-      || board[row][col].flooded || board[row][col].wall ) {
+      || board[row][col].flooded || isWall({row:row, col:col},walls) ) {
       return false;
     } else {
       return true;
     }
   }
-
-  function flood(board, row, col, maxRows, maxColumns) {
+  function isWall(cell, wall) {
+    if(wall.length===0) return false;
+    return wall.find(function(w) {
+      return w.row === cell.row && w.col === cell.col;
+    });
+  }
+  function flood(board, row, col, maxRows, maxColumns, walls) {
     var q = [], cell, x, y;
-    if(checkValidFlood(board,row, col, maxRows, maxColumns)) {
+    if(checkValidFlood(board,row, col, maxRows, maxColumns, walls)) {
       q.push([row, col]);
       while(q.length) {
         cell = q.pop();
         x=cell[0]; y=cell[1];
         board[x][y].flooded = true;
-        if(checkValidFlood(board,x+1, y, maxRows, maxColumns))
+        if(checkValidFlood(board,x+1, y, maxRows, maxColumns, walls))
           q.push([x+1,y]);
-        if(checkValidFlood(board,x-1, y, maxRows, maxColumns))
+        if(checkValidFlood(board,x-1, y, maxRows, maxColumns, walls))
           q.push([x-1,y]);
-        if(checkValidFlood(board,x, y+1, maxRows, maxColumns))
+        if(checkValidFlood(board,x, y+1, maxRows, maxColumns, walls))
           q.push([x,y+1]);
-        if(checkValidFlood(board,x, y-1, maxRows, maxColumns))
+        if(checkValidFlood(board,x, y-1, maxRows, maxColumns, walls))
           q.push([x,y-1]);
-        if(checkValidFlood(board,x+1, y+1, maxRows, maxColumns))
+        if(checkValidFlood(board,x+1, y+1, maxRows, maxColumns, walls))
           q.push([x+1,y+1]);
-        if(checkValidFlood(board,x-1, y-1, maxRows, maxColumns))
+        if(checkValidFlood(board,x-1, y-1, maxRows, maxColumns, walls))
           q.push([x-1,y-1]);
-        if(checkValidFlood(board,x+1, y-1, maxRows, maxColumns))
+        if(checkValidFlood(board,x+1, y-1, maxRows, maxColumns, walls))
           q.push([x+1,y-1]);
-        if(checkValidFlood(board,x-1, y+1, maxRows, maxColumns))
+        if(checkValidFlood(board,x-1, y+1, maxRows, maxColumns, walls))
           q.push([x-1,y+1]);                              
       }
     }
@@ -149,7 +154,7 @@ Builder.prototype.click = function(mouse) {
       if(this.board.canBuild(this.segment)) {
         this.player.addWall(this.segment);
         this.remote.emit('draw-wall', this.segment);
-        
+
         this.board.drawWalls();
 
         this.findTerritory();
@@ -157,22 +162,24 @@ Builder.prototype.click = function(mouse) {
         
         
         this.segmentFunction = this.getRandomSegment();
-        this.board.removeSegment(this.segment);
-        this.segment = this.segmentFunction(target.row, target.col, this.segmentDirection);
-        this.board.drawSegment(this.segment);
-        this.remote.emit("draw-segment", this.segment);
-        this.segmentValid(this.segment);
+        this.redrawSegment(target);
       }
       break;
     case 3:
       this.segmentDirection = (this.segmentDirection + 1 + 4) % 4;  
-      this.segment = this.segmentFunction(target.row, target.col, this.segmentDirection);
-      this.board.drawSegment(this.segment);
+      this.redrawSegment(target);
       break;
   }
   mouse.preventDefault();
 }
 
+Builder.prototype.redrawSegment = function(target) {
+  this.board.removeSegment(this.segment);
+  this.segment = this.segmentFunction(target.row, target.col, this.segmentDirection);
+  this.board.drawSegment(this.segment);
+  this.remote.emit("draw-segment", this.segment);
+  this.segmentValid(this.segment);
+}
 Builder.prototype.finish = function() {
   this.board.removeSegments(this.segment);
   $('.land').unbind("mouseover");

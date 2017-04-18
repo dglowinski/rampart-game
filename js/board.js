@@ -19,9 +19,7 @@ Board.prototype.initBoard = function () {
 }
 
 Board.prototype.reset = function () {
-  this.board.forEach(function (cell) {
-    cell.wall = false;
-  });
+
   $(".wall").removeClass("wall");
   $(".cannon-img").remove();
   $(".ship").remove();
@@ -133,7 +131,6 @@ Board.prototype.drawWalls = function () {
     player.wall.forEach(function(wallSegment) {
       $(cellSelector(wallSegment.row, wallSegment.col)).removeClass("territory-player-0 territory-player-1 territory-player-3 territory-player-4")
       $(cellSelector(wallSegment.row, wallSegment.col)).addClass("wall");
-      this.board[wallSegment.row][wallSegment.col].wall=true;
     }.bind(this));
     
   }.bind(this))
@@ -158,6 +155,7 @@ Board.prototype.drawShips = function (ships) {
 Board.prototype.canBuild = function (segment) {
   if(isNaN(segment[0].row)) return false;
   var hasWater = segment.some(function(seg){
+    if(seg.row >= this.rows-1 || seg.col >= this.columns) return true;
     return this.board[seg.row][seg.col].terrain==='water'; 
   }.bind(this));
 
@@ -198,7 +196,7 @@ Board.prototype.canPlaceCannon = function () {
 
 Board.prototype.removeWall = function (wallSeg) {
   $(cellSelector(wallSeg.row, wallSeg.col)).removeClass('wall');
-  this.board[wallSeg.row][wallSeg.col].wall=false;
+
 };
 
 Board.prototype.removeShip = function (id) {
