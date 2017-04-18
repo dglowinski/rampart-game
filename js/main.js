@@ -59,6 +59,10 @@ Game.prototype.nextStage = function () {
  
     case "cannoner":
       this.cannoner.finish();
+      if(!this.players[0].checkCannonsOnTerritory()) {
+        this.gameOver();
+        return;  
+      }
       this.stage = "war";
       this.message("WAR!!", this.startStage.bind(this));
       break;
@@ -83,6 +87,7 @@ Game.prototype.startStage = function () {
 }
 
 Game.prototype.gameOver = function () {
+
   this.message("GAME OVER", this.gameOptions.bind(this));
 }
 
@@ -118,9 +123,13 @@ Game.prototype.message = function(message, cb) {
   }, 2000)
 }
 
-Game.prototype.onCannonerFinish = function () {
+Game.prototype.onCannonerFinish = function (gameOver) {
   clearInterval(this.timerId);
-  this.nextStage();
+  if(gameOver) {
+    this.gameOver();
+  } else {
+    this.nextStage();
+  }
 }
 
 Game.prototype.startTimer = function (seconds) {
@@ -133,6 +142,7 @@ Game.prototype.startTimer = function (seconds) {
     if(this.secondsLeft===0) {
       clearInterval(this.timerId);
       this.board.hideTimer(this.secondsLeft);
+      
       this.nextStage();
     }
   }.bind(this), 1000);
@@ -185,7 +195,7 @@ War.prototype.registerEvents = function() {
   $('.container').mousedown(function(mouse){
     
     var cannon = this.players[0].cannons.find(function(can){
-      return can.canShoot;
+      return can.canShoot && !can.outOfTerritory;
     });
 
     if(cannon) {
@@ -349,6 +359,21 @@ Player.prototype.addCannon= function (cell) {
 
 Player.prototype.destroyWall= function (wallIndex) {
   this.wall.splice(wallIndex, 1);
+};
+
+Player.prototype.checkCannonsOnTerritory= function () {
+  var hasCannonsInTerritory = false;
+  this.cannons.forEach(function(cannon){
+    if(this.territory.find(function(ter){
+      return ter.row === cannon.row && ter.col === cannon.col;
+    })) {
+      cannon.outOfTerritory = false;
+    } else {
+      cannon.outOfTerritory = true;
+    }
+    hasCannonsInTerritory = hasCannonsInTerritory || !cannon.outOfTerritory;
+  }.bind(this));
+  return hasCannonsInTerritory;
 };
 
 Player.prototype.reset= function () {
