@@ -1,6 +1,7 @@
-function Builder(board, player) {
+function Builder(board, player, remote) {
   this.board = board;
   this.player = player;
+  this.remote = remote;
   
   this.segmentFunctions = [seg1, seg2, seg3, segL, segLlarge, seg5];
   this.segmentDirection = 0; //N
@@ -50,11 +51,25 @@ Builder.prototype.registerEvents = function () {
 
 Builder.prototype.moveSegment = function(mouse) {
   var target = getMouseTarget(mouse);
+  if(this.segment)
+    this.board.removeSegment(this.segment); 
+
   this.segment = this.segmentFunction(target.row, target.col, this.segmentDirection);
   this.board.drawSegment(this.segment); 
+  this.remote.emit('draw-segment', this.segment);
+
+  this.segmentValid();
+
 }
-
-
+Builder.prototype.segmentValid = function() {
+  if(this.board.canBuild(this.segment)) {
+    this.board.segmentValid(this.segment, true);
+    this.remote.emit('segment-valid', true)
+  } else {
+    this.board.segmentValid(this.segment, false);
+    this.remote.emit('segment-valid', false)
+  }
+}
 Builder.prototype.findTerritory = function() {
   var maxRows = this.board.rows;
   var maxColumns = this.board.columns;
@@ -140,8 +155,11 @@ Builder.prototype.click = function(mouse) {
         
         
         this.segmentFunction = this.getRandomSegment();
+        this.board.removeSegment(this.segment);
         this.segment = this.segmentFunction(target.row, target.col, this.segmentDirection);
         this.board.drawSegment(this.segment);
+        this.remote.emit("draw-segment", this.segment);
+        this.segmentValid(this.segment);
       }
       break;
     case 3:
@@ -154,7 +172,7 @@ Builder.prototype.click = function(mouse) {
 }
 
 Builder.prototype.finish = function() {
-  this.board.removeSegments();
+  this.board.removeSegments(this.segment);
   $('.land').unbind("mouseover");
   $(window).unbind("mousedown");
   

@@ -4,9 +4,9 @@ var NEW_SHIPS_PER_ROUND = 4;
 var SHIP_ATTACK_DELAY = 4000;
 var MAX_SHIP_DAMAGE = 5;
 var CANNON_DELAY = 2500;
-var SECONDS_WAR = 15;
+var SECONDS_WAR = 1;
 var SECONDS_CANNONER = 5;
-var SECONDS_BUILDER = 15;
+var SECONDS_BUILDER = 150000;
 
 
 
@@ -18,11 +18,13 @@ function Game() {
   this.board = new Board(this.players);
   this.board.initBoard();
   this.board.draw();
+  
+  this.remote = new Remote(this.board);
 
-  this.builder = new Builder(this.board, this.players[0]);
-  this.war = new War(this.board, this.players, this.onWarFinish);
-  this.cannoner = new Cannoner(this.board, this.players[0], this.onCannonerFinish.bind(this));
-
+  this.builder = new Builder(this.board, this.players[0], this.remote);
+  this.war = new War(this.board, this.players, this.onWarFinish, this.remote);
+  this.cannoner = new Cannoner(this.board, this.players[0], this.onCannonerFinish.bind(this), this.remote);
+  
   this.gameOptions(); 
 }
 
@@ -104,7 +106,10 @@ Game.prototype.gameOptions = function () {
    })
    $(".game-options").click(function(){
       $(".game-options").remove();
-      this.stage = "begin";
+      //this.stage = "begin";
+
+      this.stage = "war";
+
       this.nextStage();
    }.bind(this));
 }
@@ -148,9 +153,10 @@ Game.prototype.startTimer = function (seconds) {
   }.bind(this), 1000);
 }
 
-function War(board, players) {
+function War(board, players, remote) {
   this.board = board;
   this.players = players;
+  this.remote = remote;
   this.ships = [];
   this.shipsDestroyed = 0;
 }
@@ -293,9 +299,10 @@ Ship.prototype.shootCb = function() {
   this.board.removeWall(this.destroyedWall);
 };
 
-function Cannoner(board, player, finishCb) {
+function Cannoner(board, player, finishCb, remote) {
   this.board = board;
   this.player = player;
+  this.remote = remote;
   this.onFinishCb = finishCb;
 }
 

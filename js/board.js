@@ -75,7 +75,7 @@ Board.prototype.draw = function () {
 };
 
 Board.prototype.drawSegment = function (segment) {
-  this.removeSegments();
+
   if(segment.some(function(seg) {
         return seg.row < 0 || seg.row > this.rows-1 || seg.col<0 || seg.col>this.columns-1;
       }.bind(this))) {
@@ -84,17 +84,21 @@ Board.prototype.drawSegment = function (segment) {
   segment.forEach(function(seg){
     $(cellSelector(seg.row, seg.col)).addClass(seg.type).addClass("segment");
   });
-  if(this.canBuild(segment)) {
-    $(".segment").css('border-color','white');
-  } else {
 
-    $(".segment").css('border-color','red');
-  }
 };
-Board.prototype.removeSegments = function () {
-  $(".cell").removeClass('seg-single seg-closed-up seg-closed-down seg-closed-left seg-closed-right seg-through-horizontal seg-through-vertical seg-corner-lu seg-corner-ru seg-corner-rd seg-corner-ld');
+Board.prototype.removeSegment = function (segment) {
+  segment.forEach(function(seg){
+    $(cellSelector(seg.row, seg.col)).addClass(seg.type).removeClass('seg-single seg-closed-up seg-closed-down seg-closed-left seg-closed-right seg-through-horizontal seg-through-vertical seg-corner-lu seg-corner-ru seg-corner-rd seg-corner-ld');
+  });
 }
+Board.prototype.segmentValid = function (segment, valid) {
+  var color;
+  color = valid ? "white" : "red";
+  segment.forEach(function(seg){
+    $(cellSelector(seg.row, seg.col)).css("border-color", color)
+  });
 
+}
 Board.prototype.drawCannonSegment = function (segment) {
 
   
