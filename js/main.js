@@ -1,7 +1,7 @@
 var MAX_CANNONS_PER_ROUND = 3;
 var WAR_DURATION = 100000;
-var NEW_SHIPS_PER_ROUND = 4;
-var SHIP_ATTACK_DELAY = 4000;
+var NEW_SHIPS_PER_ROUND = 5;
+var SHIP_ATTACK_DELAY = 4500;
 var MAX_SHIP_DAMAGE = 4;
 var CANNON_DELAY = 2500;
 var SECONDS_WAR = 13;
@@ -40,7 +40,7 @@ Game.prototype.onConnect = function (role) {
   setTimeout(function(){
     $("#game-waiting").remove();
     this.nextStage();
-  }.bind(this), 1000) 
+  }.bind(this), 1000);
 };
 
 Game.prototype.nextStage = function () {
@@ -90,12 +90,11 @@ Game.prototype.startStage = function () {
   switch(this.stage) {  
     case "war":
         this.startTimer(SECONDS_WAR);
-     //   if(this.isMultiplayer && this.masterSlave==="master") {
-          this.war.start();
-       // }
+        this.war.start();
         break;
     case "cannoner":
         this.startTimer(SECONDS_CANNONER);
+      
         this.cannoner.init();
         break;
     case "builder":
@@ -112,12 +111,12 @@ Game.prototype.gameOver = function () {
 Game.prototype.gameOptions = function () {
   $message = $('<div>').addClass("game-options animated flipInX").html("Start single").attr("id", "game-option-single");
   $(".container").append($message);
-  $message.center().css('top', "-=20px");
+  $message.center().css('top', "-=40px");
   
  
   $message = $('<div>').addClass("game-options animated flipInX").html("Start multi").attr("id", "game-option-multi");
   $(".container").append($message);
-  $message.center().css('top', "+=20px");
+  $message.center().css('top', "+=40px");
 
  
   $(".game-options").mouseover(function() {
@@ -126,7 +125,7 @@ Game.prototype.gameOptions = function () {
   });
    $(".game-options").mouseout(function() {
      $(this).removeClass("pulse infinite game-options-over");
-   })
+   });
 
    $("#game-option-single").click(function(){
       $(".game-options").remove();
@@ -169,7 +168,7 @@ Game.prototype.onCannonerFinish = function (gameOver) {
   } else {
     if(!this.isMultiplayer || this.cannoner.isFinished && this.remote.isCannonerFinished) {
        clearInterval(this.timerId);
-       this.nextStage()
+       this.nextStage();
     }
   }
 };
@@ -203,6 +202,11 @@ function Cannoner(board, player, finishCb, remote) {
 }
 
 Cannoner.prototype.init = function() {
+  if(!this.board.canPlaceCannon()) {
+      this.remote.emit('cannoner-finished');
+      this.finish(true);
+  }
+  this.reset();
   $('.territory-player-'+this.player.number).mouseover(this.moveCannon.bind(this));
   $('.territory-player-'+this.player.number).mousedown(this.click.bind(this));
 };
@@ -317,7 +321,7 @@ Cannon.prototype.shoot = function () {
   setTimeout(function(){
     this.canShoot = true;
   }.bind(this), CANNON_DELAY); 
-}
+};
 
 
 
@@ -334,7 +338,7 @@ jQuery.fn.center = function () {
     this.css("left", this.parent().offset().left+Math.max(0, (($(".container").width() - $(this).outerWidth()) / 2))+"px"); 
                                                 //$(window).scrollLeft()) + "px");
     return this;
-}
+};
 
 function cellSelector(row, col) {
   return  "[data-row='"+row+"'][data-column='"+col+"']";
@@ -348,7 +352,7 @@ function getMouseTarget(mouse) {
 function isCellInside(cell, area) {
   return area.find(function(a) {
     return cell.row === a.row && cell.col === a.col;
-  })
+  });
 }
 
 var game = new Game();
