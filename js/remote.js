@@ -1,12 +1,13 @@
-function Remote(board, players, onConnect, onCannonerFinish, onShipDestroyed, onGameOver) {
+function Remote(board, players, onConnect, onCannonerFinish, onGameOver) {
   this.board = board;
   this.players = players;
   this.player = players[1];
   this.onConnect = onConnect;
   this.isCannonerFinished = false;
   this.onCannonerFinish = onCannonerFinish;
-  this.onShipDestroyed = onShipDestroyed;
+ 
   this.onGameOver = onGameOver;
+  console.log(this.onGameOver)
 }
 
 Remote.prototype.init = function(type, obj) {

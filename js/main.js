@@ -1,11 +1,11 @@
 var MAX_CANNONS_PER_ROUND = 3;
 var WAR_DURATION = 100000;
-var NEW_SHIPS_PER_ROUND = 5;
+var NEW_SHIPS_PER_ROUND = 4;
 var SHIP_ATTACK_DELAY = 4500;
 var MAX_SHIP_DAMAGE = 4;
 var CANNON_DELAY = 2500;
 var SECONDS_WAR = 13;
-var SECONDS_CANNONER = 15; //5
+var SECONDS_CANNONER = 5; //5
 var SECONDS_BUILDER = 20;
 
 
@@ -45,8 +45,9 @@ Game.prototype.onConnect = function (role) {
 
 Game.prototype.onWin = function () {
   this.stage = "begin";
-  console.log('there');
-  this.message("VICTORY!!", this.nextStage);
+
+  $('.game-message').remove();
+  this.message("VICTORY!!", this.gameOptions.bind(this));
 }
 
 Game.prototype.nextStage = function () {
