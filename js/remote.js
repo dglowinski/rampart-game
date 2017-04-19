@@ -17,6 +17,7 @@ Remote.prototype.init = function(type, obj) {
      case "draw-territory": this.drawTerritory(msg.obj); break;
      case "you-are-master": this.setMaster(); break;
      case "you-are-slave": this.setSlave(); break;
+     case "draw-cannon": this.setSlave(); break;
    }
   }.bind(this));
 }
@@ -59,4 +60,9 @@ Remote.prototype.setMaster = function(territory) {
 Remote.prototype.setSlave = function(territory) {
   this.onConnect('slave');
   this.isSlave = true;
+}
+
+Remote.prototype.drawCannon = function(cell) {
+  this.player.cannons.push(cell);
+  this.board.drawCannon();
 }
