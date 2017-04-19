@@ -21,7 +21,7 @@ function Game() {
   this.board.draw();
   
   this.isMultiplayer = false;
-  this.remote = new Remote(this.board, this.players, this.onConnect.bind(this), this.onCannonerFinish.bind(this));
+  this.remote = new Remote(this.board, this.players, this.onConnect.bind(this), this.onCannonerFinish.bind(this), this.onWin.bind(this));
 
   this.builder = new Builder(this.board, this.players[0], this.remote);
   this.war = new War(this.board, this.players, this.remote);
@@ -42,6 +42,12 @@ Game.prototype.onConnect = function (role) {
     this.nextStage();
   }.bind(this), 1000);
 };
+
+Game.prototype.onWin = function () {
+  this.stage = "begin";
+  console.log('there');
+  this.message("VICTORY!!", this.nextStage);
+}
 
 Game.prototype.nextStage = function () {
   switch(this.stage) {
@@ -106,6 +112,8 @@ Game.prototype.startStage = function () {
 
 Game.prototype.gameOver = function () {
   this.message("GAME OVER", this.gameOptions.bind(this));
+  console.log("emit go")
+  this.remote.emit("game-over");
 };
 
 Game.prototype.gameOptions = function () {

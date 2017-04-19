@@ -1,4 +1,4 @@
-function Remote(board, players, onConnect, onCannonerFinish, onShipDestroyed) {
+function Remote(board, players, onConnect, onCannonerFinish, onShipDestroyed, onGameOver) {
   this.board = board;
   this.players = players;
   this.player = players[1];
@@ -6,6 +6,7 @@ function Remote(board, players, onConnect, onCannonerFinish, onShipDestroyed) {
   this.isCannonerFinished = false;
   this.onCannonerFinish = onCannonerFinish;
   this.onShipDestroyed = onShipDestroyed;
+  this.onGameOver = onGameOver;
 }
 
 Remote.prototype.init = function(type, obj) {
@@ -14,6 +15,7 @@ Remote.prototype.init = function(type, obj) {
   this.emit('you-are-master', {});
 
   this.socket.on('message', function(msg){
+    console.log(msg.type);
    switch(msg.type) {
      case "draw-segment": this.moveSegment(msg.obj); break;
      case "segment-valid": this.segmentValid(msg.obj); break;
@@ -29,6 +31,7 @@ Remote.prototype.init = function(type, obj) {
      case "destroy-ship": this.shipDestroy(msg.obj); break;
      case "cannon-shoot-land": this.cannonShootLand(msg.obj); break;
      case "cannon-shoot-ship": this.cannonShootShip(msg.obj); break;
+     case "game-over": this.win(); break;
    }
   }.bind(this));
 };
@@ -144,4 +147,9 @@ Remote.prototype.cannonShootShip = function(data) {
 Remote.prototype.cannonShoot = function(cannon, targetSelector, cb) {
   this.board.animateShotCannon($(cellSelector(cannon.row, cannon.col)));
   this.board.animateShot($(cellSelector(cannon.row, cannon.col)), $(targetSelector), cb);
+};
+
+Remote.prototype.win = function() {
+  console.log('here');
+  this.onGameOver();
 };
