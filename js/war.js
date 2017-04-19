@@ -24,13 +24,13 @@ War.prototype.start = function () {
       clearInterval(this.shipsAttackTimer);
       clearInterval(this.checkWallsTimer);
     }
-  }.bind(this), 50) 
-}
+  }.bind(this), 50);
+};
 
 War.prototype.reset = function () {
   this.ships = [];
   this.shipsDestroyed = 0;
-}
+};
 
 War.prototype.finish = function () {
   clearInterval(this.shipsAttackTimer);
@@ -70,7 +70,7 @@ War.prototype.registerEvents = function() {
            return s.id===id;
           });
         }
-        cb = this.checkDestroyedShip.bind(this, ship)
+        cb = this.checkDestroyedShip.bind(this, ship);
         this.remote.emit("cannon-shoot-ship", {cannon:cannon, id:id});
       }
       this.board.animateShotCannon($(cellSelector(cannon.row, cannon.col)));
@@ -83,7 +83,7 @@ War.prototype.destroyRemoteWall = function(cell) {
   var wallIndex = this.players[0].wall.findIndex(function(wall){
     return wall.row === cell.row && wall.col === cell.col;
   });
-  this.players[1].destroyWall(wallIndex)
+  this.players[1].destroyWall(wallIndex);
   this.board.removeWall(cell);
 };
 
@@ -107,17 +107,18 @@ War.prototype.remoteShipDestroy = function(ship) {
   ship.id = ship.id.substr(1);
   this.board.removeShip(ship.id);
    _.remove(this.ships, function(s){return s.id === ship.id;});
-}
+};
 
 War.prototype.shipsAttack = function() {
-
   this.ships.forEach(function(ship,index){
     setTimeout(ship.shoot.bind(ship), index*1000*Math.random());
   });
 };
+
 War.prototype.onShipShoot = function(ship, wall) {
-  this.remote.emit("ship-shoot", {ship:ship, wall:wall})
-}
+  this.remote.emit("ship-shoot", {ship:ship, wall:wall});
+};
+
 War.prototype.addShips = function () {
   for(var i=0; i<NEW_SHIPS_PER_ROUND; i++) {
     this.ships.push(new Ship(this.getRandomShipPosition(), this.players[0], this.board, this.onShipShoot.bind(this)));
@@ -162,7 +163,6 @@ function Ship(position, player, board, onShipShootCb) {
 
 
 Ship.prototype.shoot = function() {
-  
   if(this.player.wall.length) {
 
     var wallIndex = Math.floor(Math.random() * this.player.wall.length);
@@ -174,8 +174,7 @@ Ship.prototype.shoot = function() {
     this.onShipShootCb(this,wall);
   }
 };
+
 Ship.prototype.shootCb = function(wallIndex, wall) {
-
   this.board.removeWall(wall);
-
 };

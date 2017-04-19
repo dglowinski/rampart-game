@@ -35,13 +35,13 @@ function Game() {
 
 Game.prototype.onConnect = function (role) {
   this.masterSlave = role;
-  this.players[0].masterSlave = role
+  this.players[0].masterSlave = role;
   $("#game-waiting").html("GAME ON!").center();
   setTimeout(function(){
     $("#game-waiting").remove();
     this.nextStage();
   }.bind(this), 1000) 
-}
+};
 
 Game.prototype.nextStage = function () {
   switch(this.stage) {
@@ -84,7 +84,7 @@ Game.prototype.nextStage = function () {
       this.message("WAR!!", this.startStage.bind(this));
       break;
   }
-}
+};
 
 Game.prototype.startStage = function () {
   switch(this.stage) {  
@@ -103,11 +103,11 @@ Game.prototype.startStage = function () {
         this.builder.init();
         break;
   }
-}
+};
 
 Game.prototype.gameOver = function () {
   this.message("GAME OVER", this.gameOptions.bind(this));
-}
+};
 
 Game.prototype.gameOptions = function () {
   $message = $('<div>').addClass("game-options animated flipInX").html("Start single").attr("id", "game-option-single");
@@ -158,8 +158,8 @@ Game.prototype.message = function(message, cb) {
       $('.game-message').remove();
       cb();
     }, 1000);
-  }, 2000)
-}
+  }, 2000);
+};
 
 Game.prototype.onCannonerFinish = function (gameOver) {
   
@@ -188,7 +188,7 @@ Game.prototype.startTimer = function (seconds) {
       this.nextStage();
     }
   }.bind(this), 1000);
-}
+};
 
 
 
@@ -210,7 +210,7 @@ Cannoner.prototype.init = function() {
 Cannoner.prototype.reset = function() {
   this.isFinished = false;
   this.cannonsPlaced = 0;
-}
+};
 Cannoner.prototype.click = function(event) {
   if(this.segment) {
     

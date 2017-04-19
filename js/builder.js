@@ -22,17 +22,17 @@ Builder.prototype.init = function() {
   $('.wall').removeClass('wall');
   this.board.drawWalls();
   this.findTerritory();
-}
+};
 
 Builder.prototype.makeCastle = function() {
   this.initWalls();
   this.board.drawWalls();
   this.findTerritory();
-}
+};
 
 Builder.prototype.getRandomSegment = function () {
   return this.segmentFunctions[Math.floor(Math.random() * this.segmentFunctions.length)];
-}
+};
 
 Builder.prototype.initWalls = function () {
   var castleNum = this.player.masterSlave === "master" ? 0 : 1;
@@ -42,18 +42,17 @@ Builder.prototype.initWalls = function () {
     this.remote.emit('draw-wall', [{row:this.board.castles[castleNum].row-3, col:this.board.castles[castleNum].col-3+i}]);
     this.remote.emit('draw-wall', [{row:this.board.castles[castleNum].row+4, col:this.board.castles[castleNum].col-3+i}]);
   }
-  for(var i=0; i<6; i++) {
+  for(i=0; i<6; i++) {
     this.player.addWall([{row:this.board.castles[castleNum].row-2+i, col:this.board.castles[castleNum].col-3}]);
     this.player.addWall([{row:this.board.castles[castleNum].row-2+i, col:this.board.castles[castleNum].col+4}]);
     this.remote.emit('draw-wall', [{row:this.board.castles[castleNum].row-2+i, col:this.board.castles[castleNum].col-3}]);
     this.remote.emit('draw-wall', [{row:this.board.castles[castleNum].row-2+i, col:this.board.castles[castleNum].col+4}]);
   }
-}
-Builder.prototype.registerEvents = function () {
+};
 
+Builder.prototype.registerEvents = function () {
   $('.land').mouseover(this.moveSegment.bind(this));
   $(window).mousedown(this.click.bind(this));
-
 };
 
 Builder.prototype.moveSegment = function(mouse) {
@@ -66,17 +65,17 @@ Builder.prototype.moveSegment = function(mouse) {
   this.remote.emit('draw-segment', this.segment);
 
   this.segmentValid();
+};
 
-}
 Builder.prototype.segmentValid = function() {
   if(this.board.canBuild(this.segment)) {
     this.board.segmentValid(this.segment, true);
-    this.remote.emit('segment-valid', true)
+    this.remote.emit('segment-valid', true);
   } else {
     this.board.segmentValid(this.segment, false);
-    this.remote.emit('segment-valid', false)
+    this.remote.emit('segment-valid', false);
   }
-}
+};
 Builder.prototype.findTerritory = function() {
   var maxRows = this.board.rows;
   var maxColumns = this.board.columns;
@@ -101,7 +100,7 @@ Builder.prototype.findTerritory = function() {
     row.forEach(function(el, colIndex) {
 
       if(!el.flooded && !isWall({row:rowIndex, col:colIndex}, walls)) {
-        this.player.addTerritory({row:rowIndex, col:colIndex})
+        this.player.addTerritory({row:rowIndex, col:colIndex});
        }
     }.bind(this));
   }.bind(this));
@@ -109,8 +108,8 @@ Builder.prototype.findTerritory = function() {
   this.board.drawTerritory();
 
   function checkValidFlood(board,row, col, maxRows, maxColumns, walls) {
-    if( row < 0 || col < 0 || row>maxRows-1 || col>maxColumns-1
-      || board[row][col].flooded || isWall({row:row, col:col},walls) ) {
+    if( row < 0 || col < 0 || row>maxRows-1 || col>maxColumns-1 ||
+       board[row][col].flooded || isWall({row:row, col:col},walls) ) {
       return false;
     } else {
       return true;
@@ -149,7 +148,7 @@ Builder.prototype.findTerritory = function() {
       }
     }
   }
-}
+};
 
 
 
@@ -178,7 +177,7 @@ Builder.prototype.click = function(mouse) {
       break;
   }
   mouse.preventDefault();
-}
+};
 
 Builder.prototype.redrawSegment = function(target) {
   this.board.removeSegment(this.segment);
@@ -186,10 +185,10 @@ Builder.prototype.redrawSegment = function(target) {
   this.board.drawSegment(this.segment);
   this.remote.emit("draw-segment", this.segment);
   this.segmentValid(this.segment);
-}
+};
 Builder.prototype.finish = function() {
   if(this.segment) this.board.removeSegment(this.segment);
   $('.land').unbind("mouseover");
   $(window).unbind("mousedown");
   
-}
+};

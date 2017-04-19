@@ -75,7 +75,7 @@ Remote.prototype.setSlave = function(territory) {
 Remote.prototype.drawCannonSegment = function(segment) {
   this.board.removeCannonSegment(this.cannonSegment);
   this.cannonSegment = segment;
-  this.board.drawCannonSegment(this.cannonSegment)
+  this.board.drawCannonSegment(this.cannonSegment);
 };
 
 Remote.prototype.drawCannon = function(cell) {
@@ -94,7 +94,7 @@ Remote.prototype.drawShips = function(ships) {
   this.ships = ships;
   this.ships.forEach(function(ship){
     ship.id="r"+ship.id;
-  })
+  });
   this.board.drawShips(this.ships);
 };
 
@@ -126,7 +126,7 @@ Remote.prototype.cannonShootLand = function(data) {
   var wallIndex = this.players[0].wall.findIndex(function(wall){
     return wall.row === data.cell.row && wall.col === data.cell.col;
   });
-  console.log(wallIndex)
+
   if(wallIndex!=-1) {
     this.players[0].destroyWall(wallIndex);
 

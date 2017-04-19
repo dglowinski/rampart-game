@@ -12,19 +12,18 @@ Board.prototype.initBoard = function () {
             .attr('data-column', colIndex));
     }
   }
-  $(".container").append('<div id="icons-author">Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>')
+  $(".container").append('<div id="icons-author">Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>');
   $('.cell').contextmenu(function() {
     return false;
-});
-}
+  });
+};
 
 Board.prototype.reset = function () {
-
   $(".wall").removeClass("wall");
   $(".cannon-img").remove();
   $(".ship").remove();
+};
 
-}
 Board.prototype.loadTerrain = function () {
   this.rows = 40;
   this.columns = 70;
@@ -37,8 +36,8 @@ Board.prototype.loadTerrain = function () {
         ter = {terrain:'water'};
       } else {
         if(colIndex > this.columns/3) {
-          if (rowIndex<(this.columns/3 + colIndex)/2 ) ter={terrain:'land'};
-          else {terrain:'water'};
+          if (rowIndex<(this.columns/3 + colIndex)/2 ){ter={terrain:'land'};}
+          else {ter = {terrain:"water"};}
         } else {
          ter = {terrain:'land'};
         }
@@ -47,7 +46,7 @@ Board.prototype.loadTerrain = function () {
         ter = {terrain:'water'};
       }
 
-      this.board[rowIndex].push(ter)
+      this.board[rowIndex].push(ter);
     }
   }
   this.castles = [{
@@ -56,7 +55,7 @@ Board.prototype.loadTerrain = function () {
   },{
     row: 10,
     col: 27
-  }]
+  }];
 
 /*  this.rows = 13;
   this.columns = 12;
@@ -71,7 +70,7 @@ Board.prototype.loadTerrain = function () {
     row: 5,
     col: 5
   }  */
-}
+};
 
 Board.prototype.draw = function () {
   this.board.forEach(function(row, rowIndex) {
@@ -106,15 +105,17 @@ Board.prototype.removeSegment = function (segment) {
   segment.forEach(function(seg){
     $(cellSelector(seg.row, seg.col)).addClass(seg.type).removeClass('seg-single seg-closed-up seg-closed-down seg-closed-left seg-closed-right seg-through-horizontal seg-through-vertical seg-corner-lu seg-corner-ru seg-corner-rd seg-corner-ld');
   });
-}
+};
+
 Board.prototype.segmentValid = function (segment, valid) {
   var color;
   color = valid ? "white" : "red";
   segment.forEach(function(seg){
-    $(cellSelector(seg.row, seg.col)).css("border-color", color)
+    $(cellSelector(seg.row, seg.col)).css("border-color", color);
   });
 
-}
+};
+
 Board.prototype.drawCannonSegment = function (segment) {
 
   segment.forEach(function(seg){
@@ -126,6 +127,7 @@ Board.prototype.drawCannonSegment = function (segment) {
                                                   .addClass("cannon-segment-main");
   
 };
+
 Board.prototype.removeCannonSegment = function (segment) {
   if(segment) {
     $(cellSelector(segment[0].row, segment[0].col)).html("");
@@ -133,35 +135,35 @@ Board.prototype.removeCannonSegment = function (segment) {
       $(cellSelector(seg.row, seg.col)).removeClass("cannon-segment").removeClass('seg-corner-lu seg-corner-ru seg-corner-rd seg-corner-ld');
     });
   }
-}  
+};
 
 Board.prototype.drawCannons = function () {
   this.players.forEach(function(player){
     player.cannons.forEach(function(cannon) {
       if($(cellSelector(cannon.row, cannon.col)).find("img").length===0)
-        $(cellSelector(cannon.row, cannon.col)).html("<img src='img/cannon_left.svg' class='cannon-img'>")
+        $(cellSelector(cannon.row, cannon.col)).html("<img src='img/cannon_left.svg' class='cannon-img'>");
    }.bind(this));
-  }.bind(this))
-}
+  }.bind(this));
+};
+
 Board.prototype.drawWalls = function () {
   this.players.forEach(function(player){
     player.wall.forEach(function(wallSegment) {
-      $(cellSelector(wallSegment.row, wallSegment.col)).removeClass("territory-player-0 territory-player-1 territory-player-3 territory-player-4")
+      $(cellSelector(wallSegment.row, wallSegment.col)).removeClass("territory-player-0 territory-player-1 territory-player-3 territory-player-4");
       $(cellSelector(wallSegment.row, wallSegment.col)).addClass("wall");
     }.bind(this));
     
-  }.bind(this))
+  }.bind(this));
 };
 
 Board.prototype.drawTerritory = function (playerNum) {
-  $(".land").removeClass("territory-player-0 territory-player-1 territory-player-2")
+  $(".land").removeClass("territory-player-0 territory-player-1 territory-player-2");
   this.players.forEach(function(player) {
     player.territory.forEach(function(ter){
-      $(cellSelector(ter.row, ter.col)).addClass("territory-player-"+player.number)
+      $(cellSelector(ter.row, ter.col)).addClass("territory-player-"+player.number);
     });
   });
 };
-
 
 Board.prototype.drawShips = function (ships) {
   ships.forEach(function(ship){
@@ -180,8 +182,8 @@ Board.prototype.canBuild = function (segment) {
     return this.players.some(function(player){
       return player.wall.some(function(wallSeg){
         return wallSeg.row===seg.row && wallSeg.col===seg.col;
-      })
-    })
+      });
+    });
   }.bind(this));
 
   var hasCannon= segment.some(function(seg){
@@ -191,8 +193,8 @@ Board.prototype.canBuild = function (segment) {
                cannon.row+1===seg.row && cannon.col===seg.col ||
                cannon.row===seg.row && cannon.col+1===seg.col ||
                cannon.row+1===seg.row && cannon.col+1===seg.col;
-      })
-    })
+      });
+    });
   }.bind(this));
 
   var hasCastle = segment.some(function(seg){
@@ -203,7 +205,7 @@ Board.prototype.canBuild = function (segment) {
             castle.row === seg.row && castle.col+1 === seg.col ||
             castle.row+1 === seg.row && castle.col+1 === seg.col;
 
-    })
+    });
 
     
   }.bind(this));
@@ -213,13 +215,11 @@ Board.prototype.canBuild = function (segment) {
 Board.prototype.canPlaceCannon = function () {
   return this.players[0].territory.some(function(ter){
     return this.canBuild(segCannon(ter.row, ter.col));
-  }.bind(this))
-
-}
+  }.bind(this));
+};
 
 Board.prototype.removeWall = function (wallSeg) {
   $(cellSelector(wallSeg.row, wallSeg.col)).removeClass('wall');
-
 };
 
 Board.prototype.removeShip = function (id) {
@@ -230,7 +230,7 @@ Board.prototype.animateShotShip = function ($ship) {
   $ship.attr("src", "img/ship_fire.svg");
   setTimeout(function(){
      $ship.attr("src", "img/ship2.svg");
-  }, 300)
+  }, 300);
 };
 
 Board.prototype.animateShotCannon = function ($cannon) {
@@ -242,7 +242,7 @@ Board.prototype.animateShotCannon = function ($cannon) {
   $('.container').append($img);
   setTimeout(function(){
      $img.remove();
-  }, 300)
+  }, 300);
 };
 
 Board.prototype.animateShot = function ($origin, $target, cb) {
@@ -291,7 +291,7 @@ Board.prototype.animateShot = function ($origin, $target, cb) {
       
       setTimeout(function(){
         $explosion.remove();
-      }.bind(this), 200)
+      }.bind(this), 200);
     });
   }
 };
