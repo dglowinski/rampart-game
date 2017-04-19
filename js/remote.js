@@ -24,6 +24,8 @@ Remote.prototype.init = function(type, obj) {
      case "draw-cannon-segment": this.drawCannonSegment(msg.obj); break;
      case "draw-cannon": this.drawCannon(msg.obj); break;
      case "cannoner-finished": this.cannonerFinished(); break;
+     case "draw-ships": this.drawShips(msg.obj); break;
+     case "ship-shoot": this.shipShoot(msg.obj); break;
    }
   }.bind(this));
 };
@@ -84,3 +86,19 @@ Remote.prototype.cannonerFinished = function(cell) {
   this.isCannonerFinished = true;
   this.onCannonerFinish(false);
 };
+
+Remote.prototype.drawShips = function(ships) {
+  this.ships = ships;
+  this.board.drawShips(this.ships);
+};
+
+Remote.prototype.shipShoot = function(obj) {
+  //ship, wall, wallIndex
+   this.board.animateShotShip($(cellSelector(obj.ship.row, obj.ship.col)).find("img"));
+   this.board.animateShot($(cellSelector(obj.ship.row, obj.ship.col)).find("img"), $(cellSelector(obj.wall.row, obj.wall.col)), this.shipShootCb.bind(this, obj.ship, obj.wall));
+
+}
+
+Remote.prototype.shipShootCb = function(ship, wall) {
+  this.board.removeWall(wall);
+}

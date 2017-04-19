@@ -11,6 +11,7 @@ War.prototype.start = function () {
 
   this.addShips();
   this.board.drawShips(this.ships);
+  this.remote.emit('draw-ships', this.ships);
 
   $(".container").css( 'cursor', 'url("img/aim_small.png") 16 16, auto' );
 
@@ -89,10 +90,13 @@ War.prototype.shipsAttack = function() {
     setTimeout(ship.shoot.bind(ship), index*1000*Math.random());
   });
 };
-
+War.prototype.onShipShoot = function(ship, wall) {
+  console.log(ship);
+  this.remote.emit("ship-shoot", {ship:ship, wall:wall})
+}
 War.prototype.addShips = function () {
   for(var i=0; i<NEW_SHIPS_PER_ROUND; i++) {
-    this.ships.push(new Ship(this.getRandomShipPosition(), this.players[0], this.board));
+    this.ships.push(new Ship(this.getRandomShipPosition(), this.players[0], this.board, this.onShipShoot.bind(this)));
   }
 };
 

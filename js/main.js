@@ -4,7 +4,7 @@ var NEW_SHIPS_PER_ROUND = 4;
 var SHIP_ATTACK_DELAY = 4000;
 var MAX_SHIP_DAMAGE = 5;
 var CANNON_DELAY = 2500;
-var SECONDS_WAR = 1;
+var SECONDS_WAR = 100000;
 var SECONDS_CANNONER = 15; //5
 var SECONDS_BUILDER = 150000;
 
@@ -24,7 +24,7 @@ function Game() {
   this.remote = new Remote(this.board, this.players[1], this.onConnect.bind(this), this.onCannonerFinish.bind(this));
 
   this.builder = new Builder(this.board, this.players[0], this.remote);
-  this.war = new War(this.board, this.players, this.onWarFinish, this.remote);
+  this.war = new War(this.board, this.players, this.remote);
   this.cannoner = new Cannoner(this.board, this.players[0], this.onCannonerFinish.bind(this), this.remote);
   
   this.stage = "begin";
@@ -89,7 +89,9 @@ Game.prototype.startStage = function () {
   switch(this.stage) {  
     case "war":
         this.startTimer(SECONDS_WAR);
-        this.war.start();
+        if(this.isMultiplayer && this.masterSlave==="master") {
+          this.war.start();
+        }
         break;
     case "cannoner":
         this.startTimer(SECONDS_CANNONER);
@@ -165,7 +167,6 @@ Game.prototype.onCannonerFinish = function (gameOver) {
     this.gameOver();
   } else {
     if(!this.isMultiplayer || this.cannoner.isFinished && this.remote.isCannonerFinished) {
-
        clearInterval(this.timerId);
        this.nextStage()
     }
@@ -189,11 +190,12 @@ Game.prototype.startTimer = function (seconds) {
 }
 
 
-function Ship(position, player, board) {
+function Ship(position, player, board, onShipShootCb) {
   this.row = position.row;
   this.col = position.col;
   this.player = player;
   this.board = board;
+  this.onShipShootCb = onShipShootCb;
   this.id = _.uniqueId();
   this.damage = 0;
 }
@@ -206,14 +208,16 @@ Ship.prototype.shoot = function() {
     var wallIndex = Math.floor(Math.random() * this.player.wall.length);
 
     var wall = this.player.wall[wallIndex];
-    this.destroyedWall = {row:wall.row, col:wall.col};
     this.player.destroyWall(wallIndex); 
     this.board.animateShotShip($(cellSelector(this.row, this.col)).find("img"));
-    this.board.animateShot($(cellSelector(this.row, this.col)).find("img"), $(cellSelector(wall.row, wall.col)), this.shootCb.bind(this));
+    this.board.animateShot($(cellSelector(this.row, this.col)).find("img"), $(cellSelector(wall.row, wall.col)), this.shootCb.bind(this, wallIndex, wall));
+    this.onShipShootCb(this,wall);
   }
 };
-Ship.prototype.shootCb = function() {
-  this.board.removeWall(this.destroyedWall);
+Ship.prototype.shootCb = function(wallIndex, wall) {
+
+  this.board.removeWall(wall);
+
 };
 
 function Cannoner(board, player, finishCb, remote) {
