@@ -2,11 +2,11 @@ var MAX_CANNONS_PER_ROUND = 3;
 var WAR_DURATION = 100000;
 var NEW_SHIPS_PER_ROUND = 4;
 var SHIP_ATTACK_DELAY = 4000;
-var MAX_SHIP_DAMAGE = 5;
+var MAX_SHIP_DAMAGE = 4;
 var CANNON_DELAY = 2500;
-var SECONDS_WAR = 100000;
+var SECONDS_WAR = 13;
 var SECONDS_CANNONER = 15; //5
-var SECONDS_BUILDER = 150000;
+var SECONDS_BUILDER = 20;
 
 
 
@@ -21,7 +21,7 @@ function Game() {
   this.board.draw();
   
   this.isMultiplayer = false;
-  this.remote = new Remote(this.board, this.players[1], this.onConnect.bind(this), this.onCannonerFinish.bind(this));
+  this.remote = new Remote(this.board, this.players, this.onConnect.bind(this), this.onCannonerFinish.bind(this));
 
   this.builder = new Builder(this.board, this.players[0], this.remote);
   this.war = new War(this.board, this.players, this.remote);
@@ -130,7 +130,7 @@ Game.prototype.gameOptions = function () {
 
    $("#game-option-single").click(function(){
       $(".game-options").remove();
-      this.stage = "war";
+      this.stage = "begin";
       this.isMultiplayer = false;
       this.nextStage();
    }.bind(this));

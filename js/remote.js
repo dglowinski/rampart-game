@@ -1,6 +1,7 @@
-function Remote(board, player, onConnect, onCannonerFinish, onShipDestroyed) {
+function Remote(board, players, onConnect, onCannonerFinish, onShipDestroyed) {
   this.board = board;
-  this.player = player;
+  this.players = players;
+  this.player = players[1];
   this.onConnect = onConnect;
   this.isCannonerFinished = false;
   this.onCannonerFinish = onCannonerFinish;
@@ -103,6 +104,10 @@ Remote.prototype.shipShoot = function(obj) {
 };
 
 Remote.prototype.shipShootCb = function(ship, wall) {
+  var wallIndex = this.player.wall.findIndex(function(w){
+    return wall.row === w.row && wall.col === w.col;
+  });
+  this.player.destroyWall(wallIndex);
   this.board.removeWall(wall);
 };
 
@@ -116,8 +121,19 @@ Remote.prototype.shipDestroy = function(ship) {
 };
 
 Remote.prototype.cannonShootLand = function(data) {
+
   var targetSelector = cellSelector(data.cell.row, data.cell.col);
-  this.cannonShoot(data.cannon, targetSelector);
+  var wallIndex = this.players[0].wall.findIndex(function(wall){
+    return wall.row === data.cell.row && wall.col === data.cell.col;
+  });
+  console.log(wallIndex)
+  if(wallIndex!=-1) {
+    this.players[0].destroyWall(wallIndex);
+
+  }
+  this.cannonShoot(data.cannon, targetSelector, function(wall){
+    this.board.removeWall(wall);
+  }.bind(this, data.cell));
 };
 
 Remote.prototype.cannonShootShip = function(data) {
@@ -125,7 +141,7 @@ Remote.prototype.cannonShootShip = function(data) {
   this.cannonShoot(data.cannon, targetSelector);
 };
 
-Remote.prototype.cannonShoot = function(cannon, targetSelector) {
+Remote.prototype.cannonShoot = function(cannon, targetSelector, cb) {
   this.board.animateShotCannon($(cellSelector(cannon.row, cannon.col)));
-  this.board.animateShot($(cellSelector(cannon.row, cannon.col)), $(targetSelector));
+  this.board.animateShot($(cellSelector(cannon.row, cannon.col)), $(targetSelector), cb);
 };

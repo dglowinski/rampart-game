@@ -26,21 +26,36 @@ Board.prototype.reset = function () {
 
 }
 Board.prototype.loadTerrain = function () {
-  this.rows = 30;
-  this.columns = 50;
+  this.rows = 40;
+  this.columns = 70;
   this.board = [];
+  var ter;
   for(var rowIndex=0; rowIndex<this.rows; rowIndex++) {
     this.board.push([]);
     for(var colIndex=0; colIndex<this.columns; colIndex++) {
-      this.board[rowIndex].push(rowIndex>colIndex ? {terrain:'water'} : {terrain:'land'})
+      if(rowIndex>colIndex) {
+        ter = {terrain:'water'};
+      } else {
+        if(colIndex > this.columns/3) {
+          if (rowIndex<(this.columns/3 + colIndex)/2 ) ter={terrain:'land'};
+          else {terrain:'water'};
+        } else {
+         ter = {terrain:'land'};
+        }
+      }
+      if(colIndex === this.rows-rowIndex +15 || colIndex === this.rows-rowIndex +16) {
+        ter = {terrain:'water'};
+      }
+
+      this.board[rowIndex].push(ter)
     }
   }
   this.castles = [{
-    row: 20,
-    col: 40
+    row: 25,
+    col: 50
   },{
-    row: 7,
-    col: 20
+    row: 10,
+    col: 27
   }]
 
 /*  this.rows = 13;

@@ -44,7 +44,7 @@ War.prototype.clearEvents = function() {
 };
 
 War.prototype.registerEvents = function() {
-  var ship = {}, cb = function(){};
+  var ship = {}, cb;
   $('.container').mousedown(function(mouse){
     
     var cannon = this.players[0].cannons.find(function(can){
@@ -53,32 +53,38 @@ War.prototype.registerEvents = function() {
 
     if(cannon) {
       cannon.shoot();
-      if($(mouse.target).hasClass('ship')) {
+
+      
+      if($(mouse.target).hasClass("cell")) {
+        var cell = {row: parseInt($(mouse.target).attr("data-row")), col: parseInt($(mouse.target).attr("data-column"))}; 
+        cb = this.destroyRemoteWall.bind(this, cell);
+        this.remote.emit("cannon-shoot-land", {cannon:cannon, cell:cell});
+      }
+      if($(mouse.target).hasClass("ship")) {
         var id = $(mouse.target).attr('id');
         var ship = this.ships.find(function(s){
           return s.id===id;
         });
         if(!ship) {
           ship = this.remote.ships.find(function(s){
-          return s.id===id;
-        });
+           return s.id===id;
+          });
         }
-      } 
+        cb = this.checkDestroyedShip.bind(this, ship)
+        this.remote.emit("cannon-shoot-ship", {cannon:cannon, id:id});
+      }
       this.board.animateShotCannon($(cellSelector(cannon.row, cannon.col)));
-      this.board.animateShot($(cellSelector(cannon.row, cannon.col)), $(mouse.target) , this.checkDestroyedShip.bind(this, ship));
-
-      var data;
-      if($(mouse.target).hasClass("cell")) {
-        data = {row: $(mouse.target).attr("data-row"), col: $(mouse.target).attr("data-column")}; 
-        this.remote.emit("cannon-shoot-land", {cannon:cannon, cell:data});
-      }
-      if($(mouse.target).hasClass("ship")) {
-        data = $(mouse.target).attr("id");
-        this.remote.emit("cannon-shoot-ship", {cannon:cannon, id:data});
-      }
-      //this.remote.emit("cannon-shoot", {cannon:cannon, );
+      this.board.animateShot($(cellSelector(cannon.row, cannon.col)), $(mouse.target) , cb);
     }
-   }.bind(this))
+   }.bind(this));
+};
+
+War.prototype.destroyRemoteWall = function(cell) {
+  var wallIndex = this.players[0].wall.findIndex(function(wall){
+    return wall.row === cell.row && wall.col === cell.col;
+  });
+  this.players[1].destroyWall(wallIndex)
+  this.board.removeWall(cell);
 };
 
 War.prototype.checkDestroyedShip = function(ship) {

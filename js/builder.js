@@ -19,6 +19,8 @@ function Builder(board, player, remote) {
 Builder.prototype.init = function() {
   this.segmentFunction = this.getRandomSegment();
   this.registerEvents();
+  $('.wall').removeClass('wall');
+  this.board.drawWalls();
   this.findTerritory();
 }
 
@@ -186,7 +188,7 @@ Builder.prototype.redrawSegment = function(target) {
   this.segmentValid(this.segment);
 }
 Builder.prototype.finish = function() {
-  this.board.removeSegments(this.segment);
+  if(this.segment) this.board.removeSegment(this.segment);
   $('.land').unbind("mouseover");
   $(window).unbind("mousedown");
   
