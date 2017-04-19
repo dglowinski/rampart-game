@@ -272,7 +272,7 @@ Board.prototype.animateShot = function ($origin, $target, cb) {
       $explosion.offset(explosionOffset);
       $ball.remove();
       $('.container').append($explosion);
-      cb();
+      if(cb) cb();
       
       setTimeout(function(){
         $explosion.remove();

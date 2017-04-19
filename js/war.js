@@ -66,31 +66,40 @@ War.prototype.registerEvents = function() {
       } 
       this.board.animateShotCannon($(cellSelector(cannon.row, cannon.col)));
       this.board.animateShot($(cellSelector(cannon.row, cannon.col)), $(mouse.target) , this.checkDestroyedShip.bind(this, ship));
+
+      var data;
+      if($(mouse.target).hasClass("cell")) {
+        data = {row: $(mouse.target).attr("data-row"), col: $(mouse.target).attr("data-column")}; 
+        this.remote.emit("cannon-shoot-land", {cannon:cannon, cell:data});
+      }
+      if($(mouse.target).hasClass("ship")) {
+        data = $(mouse.target).attr("id");
+        this.remote.emit("cannon-shoot-ship", {cannon:cannon, id:data});
+      }
+      //this.remote.emit("cannon-shoot", {cannon:cannon, );
     }
    }.bind(this))
 };
 
 War.prototype.checkDestroyedShip = function(ship) {
-
-    if(ship) {
-      ship.damage++;
-      if(ship.damage>=MAX_SHIP_DAMAGE) {
-        this.board.removeShip(ship.id);
-        if(ship.id[0]==="r") {
-          _.remove(this.remote.ships, function(s){return s.id === ship.id;});
-        } else {
-          _.remove(this.ships, function(s){return s.id === ship.id;});
-        }
-        this.remote.emit("destroy-ship", ship);
-        this.shipsDestroyed++;
+  if(ship) {
+    ship.damage++;
+    if(ship.damage>=MAX_SHIP_DAMAGE) {
+      this.board.removeShip(ship.id);
+      if(ship.id[0]==="r") {
+        _.remove(this.remote.ships, function(s){return s.id === ship.id;});
+      } else {
+        _.remove(this.ships, function(s){return s.id === ship.id;});
       }
+      this.remote.emit("destroy-ship", ship);
+      this.shipsDestroyed++;
     }
+  }
 };
 
 War.prototype.remoteShipDestroy = function(ship) {
   ship.id = ship.id.substr(1);
   this.board.removeShip(ship.id);
-  console.log("remove remote")
    _.remove(this.ships, function(s){return s.id === ship.id;});
 }
 

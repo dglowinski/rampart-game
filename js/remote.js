@@ -5,16 +5,14 @@ function Remote(board, player, onConnect, onCannonerFinish, onShipDestroyed) {
   this.isCannonerFinished = false;
   this.onCannonerFinish = onCannonerFinish;
   this.onShipDestroyed = onShipDestroyed;
-
 }
 
 Remote.prototype.init = function(type, obj) {
-  console.log("remote init");
   
   this.socket = io('https://safe-falls-11425.herokuapp.com');
   this.emit('you-are-master', {});
+
   this.socket.on('message', function(msg){
- //   console.log("message "+msg.type)
    switch(msg.type) {
      case "draw-segment": this.moveSegment(msg.obj); break;
      case "segment-valid": this.segmentValid(msg.obj); break;
@@ -28,6 +26,8 @@ Remote.prototype.init = function(type, obj) {
      case "draw-ships": this.drawShips(msg.obj); break;
      case "ship-shoot": this.shipShoot(msg.obj); break;
      case "destroy-ship": this.shipDestroy(msg.obj); break;
+     case "cannon-shoot-land": this.cannonShootLand(msg.obj); break;
+     case "cannon-shoot-ship": this.cannonShootShip(msg.obj); break;
    }
   }.bind(this));
 };
@@ -56,7 +56,6 @@ Remote.prototype.drawWall = function(segment) {
 
 Remote.prototype.drawTerritory = function(territory) {
   this.player.territory = territory;
-
   this.board.drawTerritory();
 };
 
@@ -71,13 +70,14 @@ Remote.prototype.setSlave = function(territory) {
   this.onConnect('slave');
   this.isSlave = true;
 };
+
 Remote.prototype.drawCannonSegment = function(segment) {
   this.board.removeCannonSegment(this.cannonSegment);
   this.cannonSegment = segment;
   this.board.drawCannonSegment(this.cannonSegment)
 };
+
 Remote.prototype.drawCannon = function(cell) {
-  
   this.player.addCannon(cell);
   this.board.removeCannonSegment(this.cannonSegment);
   this.cannonSegment = null;
@@ -98,24 +98,34 @@ Remote.prototype.drawShips = function(ships) {
 };
 
 Remote.prototype.shipShoot = function(obj) {
-
    this.board.animateShotShip($(cellSelector(obj.ship.row, obj.ship.col)).find("img"));
    this.board.animateShot($(cellSelector(obj.ship.row, obj.ship.col)).find("img"), $(cellSelector(obj.wall.row, obj.wall.col)), this.shipShootCb.bind(this, obj.ship, obj.wall));
-
-}
+};
 
 Remote.prototype.shipShootCb = function(ship, wall) {
   this.board.removeWall(wall);
-}
+};
 
 Remote.prototype.shipDestroy = function(ship) {
-  
   if(ship.id[0]==="r") {
-    //remove own
     this.onShipDestroyed(ship);
   } else {
     this.board.removeShip("r"+ship.id);
     _.remove(this.ships, function(s){return s.id === "r"+ship.id;});
   }
-}
+};
 
+Remote.prototype.cannonShootLand = function(data) {
+  var targetSelector = cellSelector(data.cell.row, data.cell.col);
+  this.cannonShoot(data.cannon, targetSelector);
+};
+
+Remote.prototype.cannonShootShip = function(data) {
+  var targetSelector = "#"+(data.id[0]==="r" ? data.id.substr(1) : "r"+data.id);
+  this.cannonShoot(data.cannon, targetSelector);
+};
+
+Remote.prototype.cannonShoot = function(cannon, targetSelector) {
+  this.board.animateShotCannon($(cellSelector(cannon.row, cannon.col)));
+  this.board.animateShot($(cellSelector(cannon.row, cannon.col)), $(targetSelector));
+};
