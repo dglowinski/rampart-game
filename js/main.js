@@ -21,7 +21,7 @@ function Game() {
   this.board.draw();
   
   this.isMultiplayer = false;
-  this.remote = new Remote(this.board, this.players[1], this.onConnect.bind(this));
+  this.remote = new Remote(this.board, this.players[1], this.onConnect.bind(this), this.onCannonerFinish.bind(this));
 
   this.builder = new Builder(this.board, this.players[0], this.remote);
   this.war = new War(this.board, this.players, this.onWarFinish, this.remote);
@@ -46,8 +46,10 @@ Game.prototype.nextStage = function () {
   switch(this.stage) {
     case "begin":
       this.players[0].reset();
+      this.players[1].reset();
       this.war.reset();
       this.board.reset();
+      this.cannoner.reset();
       this.builder.makeCastle();
       this.stage = "cannoner";
       this.message("Place cannons", this.startStage.bind(this));
@@ -126,7 +128,7 @@ Game.prototype.gameOptions = function () {
    $("#game-option-single").click(function(){
       $(".game-options").remove();
       this.stage = "war";
-
+      this.isMultiplayer = false;
       this.nextStage();
    }.bind(this));
 
@@ -157,13 +159,18 @@ Game.prototype.message = function(message, cb) {
 }
 
 Game.prototype.onCannonerFinish = function (gameOver) {
-  clearInterval(this.timerId);
+  
   if(gameOver) {
+    clearInterval(this.timerId);
     this.gameOver();
   } else {
-    this.nextStage();
+    if(!this.isMultiplayer || this.cannoner.isFinished && this.remote.isCannonerFinished) {
+
+       clearInterval(this.timerId);
+       this.nextStage()
+    }
   }
-}
+};
 
 Game.prototype.startTimer = function (seconds) {
   this.secondsLeft = seconds;
@@ -214,25 +221,33 @@ function Cannoner(board, player, finishCb, remote) {
   this.player = player;
   this.remote = remote;
   this.onFinishCb = finishCb;
+
+  this.isFinished = false;
+  this.cannonsPlaced = 0;
 }
 
 Cannoner.prototype.init = function() {
-    $('.territory-player-'+this.player.number).mouseover(this.moveCannon.bind(this));
-    $('.territory-player-'+this.player.number).mousedown(this.click.bind(this));
-    this.cannonsPlaced = 0;
+  $('.territory-player-'+this.player.number).mouseover(this.moveCannon.bind(this));
+  $('.territory-player-'+this.player.number).mousedown(this.click.bind(this));
 };
 
+Cannoner.prototype.reset = function() {
+  this.isFinished = false;
+  this.cannonsPlaced = 0;
+}
 Cannoner.prototype.click = function(event) {
-  if(this.newCannonCell) {
+  if(this.segment) {
     
-    this.player.addCannon(this.newCannonCell);
+    this.player.addCannon(this.segment[0]);
     this.cannonsPlaced++;
-    this.newCannonCell = null;
-    this.board.drawCannon();
-    this.remote.emit("draw-cannon", this.newCannonCell );
-
+    this.board.removeCannonSegment(this.segment);
+    this.board.drawCannons();
+    
+    this.remote.emit("draw-cannon", this.segment[0] );
+    this.segment = null;
     if(!this.board.canPlaceCannon() || this.cannonsPlaced === MAX_CANNONS_PER_ROUND) {
       event.stopPropagation();
+      this.remote.emit('cannoner-finished');
       this.finish(true);
     }
   }
@@ -241,19 +256,31 @@ Cannoner.prototype.click = function(event) {
 Cannoner.prototype.finish = function(withCb) {
   $('.territory-player-'+this.player.number).unbind("mouseover");
   $('.territory-player-'+this.player.number).unbind("mousedown");
+  this.isFinished = true;
   if(withCb) this.onFinishCb();
 };
 
 
 Cannoner.prototype.moveCannon = function(mouse) {
   var target = getMouseTarget(mouse);
-  this.getSegment(target.row, target.col);
-  var cell = this.board.drawCannonSegment(this.segment); 
-  if(cell) this.newCannonCell = cell;
+  
+  var newSegment = this.getSegment(target.row, target.col);
+
+  if(newSegment.some(function(seg) {
+        return seg.row < 0 || seg.row > this.rows-1 || seg.col<0 || seg.col>this.columns-1;
+      }.bind(this))) {
+    return;
+  }
+  if(this.board.canBuild(newSegment)) {
+    this.board.removeCannonSegment(this.segment);
+    this.segment = newSegment;
+    this.board.drawCannonSegment(this.segment); 
+    this.remote.emit('draw-cannon-segment', this.segment);
+  }
 };
 
 Cannoner.prototype.getSegment = function(row, col) {
-  this.segment = segCannon(row, col)  
+  return segCannon(row, col);  
 };
 
 function Player(type,number) {
@@ -325,7 +352,7 @@ Cannon.prototype.shoot = function () {
 
 jQuery.fn.center = function () {
     this.css("position","absolute");
-    ;
+    
     this.css("top", this.parent().offset().top+Math.max(0, (($(".container").height() - $(this).outerHeight()) / 2))+"px"); 
                                                 //$(window).scrollTop()) + "px");
     this.css("left", this.parent().offset().left+Math.max(0, (($(".container").width() - $(this).outerWidth()) / 2))+"px"); 

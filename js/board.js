@@ -102,32 +102,31 @@ Board.prototype.segmentValid = function (segment, valid) {
 }
 Board.prototype.drawCannonSegment = function (segment) {
 
+  segment.forEach(function(seg){
+    $(cellSelector(seg.row, seg.col)).addClass(seg.type).addClass("cannon-segment");
+      $(".cannon-segment").css('border-color','white');
+  });
+
+  $(cellSelector(segment[0].row, segment[0].col)).html("<img src='img/cannon_left.svg' class='cannon-img'>")
+                                                  .addClass("cannon-segment-main");
   
-  if(segment.some(function(seg) {
-        return seg.row < 0 || seg.row > this.rows-1 || seg.col<0 || seg.col>this.columns-1;
-      }.bind(this))) {
-    return;
-  }
-  if(this.canBuild(segment)) {
-
-    $(".cannon-segment-main").html("");
-    $(".cannon-segment").removeClass("cannon-segment").removeClass('seg-corner-lu seg-corner-ru seg-corner-rd seg-corner-ld');
-    segment.forEach(function(seg){
-      $(cellSelector(seg.row, seg.col)).addClass(seg.type).addClass("cannon-segment");
-    });
-
-    $(cellSelector(segment[0].row, segment[0].col)).html("<img src='img/cannon_left.svg' class='cannon-img'>")
-                                                   .addClass("cannon-segment-main");
-    
-
-    $(".cannon-segment").css('border-color','white');
-
-    return {row:segment[0].row, col:segment[0].col};
-  } 
 };
-Board.prototype.drawCannon = function () {
-  $(".cannon-segment-main").removeClass('cannon-segment-main').addClass('cannon');
-  $(".cannon-segment").removeClass('seg-corner-lu seg-corner-ru seg-corner-rd seg-corner-ld')
+Board.prototype.removeCannonSegment = function (segment) {
+  if(segment) {
+    $(cellSelector(segment[0].row, segment[0].col)).html("");
+    segment.forEach(function(seg){
+      $(cellSelector(seg.row, seg.col)).removeClass("cannon-segment").removeClass('seg-corner-lu seg-corner-ru seg-corner-rd seg-corner-ld');
+    });
+  }
+}  
+
+Board.prototype.drawCannons = function () {
+  this.players.forEach(function(player){
+    player.cannons.forEach(function(cannon) {
+      if($(cellSelector(cannon.row, cannon.col)).find("img").length===0)
+        $(cellSelector(cannon.row, cannon.col)).html("<img src='img/cannon_left.svg' class='cannon-img'>")
+   }.bind(this));
+  }.bind(this))
 }
 Board.prototype.drawWalls = function () {
   this.players.forEach(function(player){
