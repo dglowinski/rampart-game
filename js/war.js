@@ -58,6 +58,11 @@ War.prototype.registerEvents = function() {
         var ship = this.ships.find(function(s){
           return s.id===id;
         });
+        if(!ship) {
+          ship = this.remote.ships.find(function(s){
+          return s.id===id;
+        });
+        }
       } 
       this.board.animateShotCannon($(cellSelector(cannon.row, cannon.col)));
       this.board.animateShot($(cellSelector(cannon.row, cannon.col)), $(mouse.target) , this.checkDestroyedShip.bind(this, ship));
@@ -66,23 +71,28 @@ War.prototype.registerEvents = function() {
 };
 
 War.prototype.checkDestroyedShip = function(ship) {
-  /*
-  for(var i=0; i<this.ships.length; i++) {
-    if(this.ships[i].damage>=MAX_SHIP_DAMAGE) {
-      this.board.removeShip(this.ships[i].id);ship.damage++;
-      this.ships.splice(i,1);
-    }
-  }
-  */
+
     if(ship) {
       ship.damage++;
       if(ship.damage>=MAX_SHIP_DAMAGE) {
         this.board.removeShip(ship.id);
-        _.remove(this.ships, function(s){return s.id === ship.id;});
+        if(ship.id[0]==="r") {
+          _.remove(this.remote.ships, function(s){return s.id === ship.id;});
+        } else {
+          _.remove(this.ships, function(s){return s.id === ship.id;});
+        }
+        this.remote.emit("destroy-ship", ship);
         this.shipsDestroyed++;
       }
     }
 };
+
+War.prototype.remoteShipDestroy = function(ship) {
+  ship.id = ship.id.substr(1);
+  this.board.removeShip(ship.id);
+  console.log("remove remote")
+   _.remove(this.ships, function(s){return s.id === ship.id;});
+}
 
 War.prototype.shipsAttack = function() {
 
@@ -91,7 +101,6 @@ War.prototype.shipsAttack = function() {
   });
 };
 War.prototype.onShipShoot = function(ship, wall) {
-  console.log(ship);
   this.remote.emit("ship-shoot", {ship:ship, wall:wall})
 }
 War.prototype.addShips = function () {
@@ -120,4 +129,38 @@ War.prototype.getRandomShipPosition = function () {
     
   } while(!isCorrectPosition);
   return {row:row, col:col};
+};
+
+
+
+
+
+function Ship(position, player, board, onShipShootCb) {
+  this.row = position.row;
+  this.col = position.col;
+  this.player = player;
+  this.board = board;
+  this.onShipShootCb = onShipShootCb;
+  this.id = _.uniqueId();
+  this.damage = 0;
+}
+
+
+Ship.prototype.shoot = function() {
+  
+  if(this.player.wall.length) {
+
+    var wallIndex = Math.floor(Math.random() * this.player.wall.length);
+
+    var wall = this.player.wall[wallIndex];
+    this.player.destroyWall(wallIndex); 
+    this.board.animateShotShip($(cellSelector(this.row, this.col)).find("img"));
+    this.board.animateShot($(cellSelector(this.row, this.col)).find("img"), $(cellSelector(wall.row, wall.col)), this.shootCb.bind(this, wallIndex, wall));
+    this.onShipShootCb(this,wall);
+  }
+};
+Ship.prototype.shootCb = function(wallIndex, wall) {
+
+  this.board.removeWall(wall);
+
 };

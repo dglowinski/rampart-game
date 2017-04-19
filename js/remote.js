@@ -1,9 +1,10 @@
-function Remote(board, player, onConnect, onCannonerFinish) {
+function Remote(board, player, onConnect, onCannonerFinish, onShipDestroyed) {
   this.board = board;
   this.player = player;
   this.onConnect = onConnect;
   this.isCannonerFinished = false;
   this.onCannonerFinish = onCannonerFinish;
+  this.onShipDestroyed = onShipDestroyed;
 
 }
 
@@ -26,6 +27,7 @@ Remote.prototype.init = function(type, obj) {
      case "cannoner-finished": this.cannonerFinished(); break;
      case "draw-ships": this.drawShips(msg.obj); break;
      case "ship-shoot": this.shipShoot(msg.obj); break;
+     case "destroy-ship": this.shipDestroy(msg.obj); break;
    }
   }.bind(this));
 };
@@ -89,11 +91,14 @@ Remote.prototype.cannonerFinished = function(cell) {
 
 Remote.prototype.drawShips = function(ships) {
   this.ships = ships;
+  this.ships.forEach(function(ship){
+    ship.id="r"+ship.id;
+  })
   this.board.drawShips(this.ships);
 };
 
 Remote.prototype.shipShoot = function(obj) {
-  //ship, wall, wallIndex
+
    this.board.animateShotShip($(cellSelector(obj.ship.row, obj.ship.col)).find("img"));
    this.board.animateShot($(cellSelector(obj.ship.row, obj.ship.col)).find("img"), $(cellSelector(obj.wall.row, obj.wall.col)), this.shipShootCb.bind(this, obj.ship, obj.wall));
 
@@ -102,3 +107,15 @@ Remote.prototype.shipShoot = function(obj) {
 Remote.prototype.shipShootCb = function(ship, wall) {
   this.board.removeWall(wall);
 }
+
+Remote.prototype.shipDestroy = function(ship) {
+  
+  if(ship.id[0]==="r") {
+    //remove own
+    this.onShipDestroyed(ship);
+  } else {
+    this.board.removeShip("r"+ship.id);
+    _.remove(this.ships, function(s){return s.id === "r"+ship.id;});
+  }
+}
+

@@ -25,6 +25,7 @@ function Game() {
 
   this.builder = new Builder(this.board, this.players[0], this.remote);
   this.war = new War(this.board, this.players, this.remote);
+  this.remote.onShipDestroyed = this.war.remoteShipDestroy;
   this.cannoner = new Cannoner(this.board, this.players[0], this.onCannonerFinish.bind(this), this.remote);
   
   this.stage = "begin";
@@ -89,9 +90,9 @@ Game.prototype.startStage = function () {
   switch(this.stage) {  
     case "war":
         this.startTimer(SECONDS_WAR);
-        if(this.isMultiplayer && this.masterSlave==="master") {
+     //   if(this.isMultiplayer && this.masterSlave==="master") {
           this.war.start();
-        }
+       // }
         break;
     case "cannoner":
         this.startTimer(SECONDS_CANNONER);
@@ -190,35 +191,6 @@ Game.prototype.startTimer = function (seconds) {
 }
 
 
-function Ship(position, player, board, onShipShootCb) {
-  this.row = position.row;
-  this.col = position.col;
-  this.player = player;
-  this.board = board;
-  this.onShipShootCb = onShipShootCb;
-  this.id = _.uniqueId();
-  this.damage = 0;
-}
-
-
-Ship.prototype.shoot = function() {
-  
-  if(this.player.wall.length) {
-
-    var wallIndex = Math.floor(Math.random() * this.player.wall.length);
-
-    var wall = this.player.wall[wallIndex];
-    this.player.destroyWall(wallIndex); 
-    this.board.animateShotShip($(cellSelector(this.row, this.col)).find("img"));
-    this.board.animateShot($(cellSelector(this.row, this.col)).find("img"), $(cellSelector(wall.row, wall.col)), this.shootCb.bind(this, wallIndex, wall));
-    this.onShipShootCb(this,wall);
-  }
-};
-Ship.prototype.shootCb = function(wallIndex, wall) {
-
-  this.board.removeWall(wall);
-
-};
 
 function Cannoner(board, player, finishCb, remote) {
   this.board = board;
