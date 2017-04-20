@@ -125,7 +125,6 @@ Remote.prototype.shipDestroy = function(ship) {
 };
 
 Remote.prototype.cannonShootLand = function(data) {
-
   var targetSelector = cellSelector(data.cell.row, data.cell.col);
   var wallIndex = this.players[0].wall.findIndex(function(wall){
     return wall.row === data.cell.row && wall.col === data.cell.col;
@@ -133,7 +132,6 @@ Remote.prototype.cannonShootLand = function(data) {
 
   if(wallIndex!=-1) {
     this.players[0].destroyWall(wallIndex);
-
   }
   this.cannonShoot(data.cannon, targetSelector, function(wall){
     this.board.removeWall(wall);
@@ -151,6 +149,5 @@ Remote.prototype.cannonShoot = function(cannon, targetSelector, cb) {
 };
 
 Remote.prototype.win = function() {
-  console.log('here');
   this.onGameOver();
 };

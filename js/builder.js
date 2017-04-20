@@ -142,8 +142,6 @@ Builder.prototype.findTerritory = function() {
   }
 };
 
-
-
 Builder.prototype.click = function(mouse) {
   var target = getMouseTarget(mouse);
 
@@ -157,8 +155,7 @@ Builder.prototype.click = function(mouse) {
 
         this.findTerritory();
         this.board.drawTerritory();
-        
-        
+            
         this.segmentFunction = this.getRandomSegment();
         this.redrawSegment(target);
       }
@@ -184,5 +181,4 @@ Builder.prototype.finish = function() {
   if(this.segment) this.board.removeSegment(this.segment);
   $('.land').unbind("mouseover");
   $(window).unbind("mousedown");
-  
 };

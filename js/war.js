@@ -1,4 +1,3 @@
-
 function War(board, players, remote) {
   this.board = board;
   this.players = players;
@@ -8,7 +7,6 @@ function War(board, players, remote) {
 }
 
 War.prototype.start = function () {
-
   this.addShips();
   this.board.drawShips(this.ships);
   this.remote.emit('draw-ships', this.ships);
@@ -16,11 +14,13 @@ War.prototype.start = function () {
   $(".container").css( 'cursor', 'url("img/aim_small.png") 16 16, auto' );
 
   this.registerEvents();
+
   setTimeout(this.shipsAttack.bind(this),1000);
+
   this.shipsAttackTimer = setInterval(this.shipsAttack.bind(this), SHIP_ATTACK_DELAY);
+  
   this.checkWallsTimer = setInterval(function(){
     if(this.players[0].wall.length===0) {
-      console.log('walls destroyed');
       clearInterval(this.shipsAttackTimer);
       clearInterval(this.checkWallsTimer);
     }
@@ -148,8 +148,6 @@ War.prototype.getRandomShipPosition = function () {
 };
 
 
-
-
 function Ship(position, player, board, onShipShootCb) {
   this.row = position.row;
   this.col = position.col;
@@ -176,4 +174,17 @@ Ship.prototype.shoot = function() {
 
 Ship.prototype.shootCb = function(wallIndex, wall) {
   this.board.removeWall(wall);
+};
+
+function Cannon(cell) {
+  this.row = cell.row;
+  this.col = cell.col;
+  this.canShoot = true;
+}
+
+Cannon.prototype.shoot = function () {
+  this.canShoot = false;
+  setTimeout(function(){
+    this.canShoot = true;
+  }.bind(this), CANNON_DELAY); 
 };
