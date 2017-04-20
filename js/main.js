@@ -6,12 +6,15 @@ var MAX_SHIP_DAMAGE = 4;
 var CANNON_DELAY = 2500;
 var SECONDS_WAR = 13;
 var SECONDS_CANNONER = 5; //5
-var SECONDS_BUILDER = 20;
+var SECONDS_BUILDER = 25;
 
 var SND_ROTATE = "snd/rotate2.mp3";
 var SND_BUILD = "snd/push3.mp3";
 var SND_THEME = "snd/theme.mp3";
 var SND_OPTIONS = "snd/options.mp3";
+var SND_BUILD_THEME = "snd/build_theme.mp3";
+var SND_GAME_OVER = "snd/game_over.mp3";
+var SND_STAGE = "snd/stage.mp3";
 
 function Game() {
   this.players = [];
@@ -33,6 +36,7 @@ function Game() {
   
   this.stage = "begin";
   this.soundTheme = new Audio(SND_THEME);
+  this.soundBuildTheme = new Audio(SND_BUILD_THEME);
   this.gameOptions(); 
 }
 
@@ -99,15 +103,19 @@ Game.prototype.nextStage = function () {
 Game.prototype.startStage = function () {
   switch(this.stage) {  
     case "war":
+        this.soundBuildTheme.pause();
+        this.soundBuildTheme.currentTime=0;
         this.startTimer(SECONDS_WAR);
         this.war.start();
         break;
     case "cannoner":
+        if(this.soundBuildTheme.currentTime===0) this.soundBuildTheme.play();
         this.startTimer(SECONDS_CANNONER);
       
         this.cannoner.init();
         break;
     case "builder":
+        if(this.soundBuildTheme.currentTime===0) this.soundBuildTheme.play();
         this.startTimer(SECONDS_BUILDER);
         this.builder.init();
         break;
@@ -116,7 +124,7 @@ Game.prototype.startStage = function () {
 
 Game.prototype.gameOver = function () {
   this.message("GAME OVER", this.gameOptions.bind(this));
-  console.log("emit go")
+  (new Audio(SND_GAME_OVER)).play();
   this.remote.emit("game-over");
 };
 
@@ -171,6 +179,9 @@ Game.prototype.message = function(message, cb) {
   $message = $('<div>').addClass("game-message animated bounceInDown").html(message);
   $(".container").append($message);
   $(".game-message").center();
+  this.soundBuildTheme.pause();
+  this.soundBuildTheme.currentTime=0;
+  (new Audio(SND_STAGE)).play();
   setTimeout(function(){
     $('.game-message').addClass("fadeOutDown");
     setTimeout(function(){
