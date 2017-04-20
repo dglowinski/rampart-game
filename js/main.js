@@ -8,7 +8,10 @@ var SECONDS_WAR = 13;
 var SECONDS_CANNONER = 5; //5
 var SECONDS_BUILDER = 20;
 
-
+var SND_ROTATE = "snd/rotate2.mp3";
+var SND_BUILD = "snd/push3.mp3";
+var SND_THEME = "snd/theme.mp3";
+var SND_OPTIONS = "snd/options.mp3";
 
 function Game() {
   this.players = [];
@@ -29,7 +32,7 @@ function Game() {
   this.cannoner = new Cannoner(this.board, this.players[0], this.onCannonerFinish.bind(this), this.remote);
   
   this.stage = "begin";
-
+  this.soundTheme = new Audio(SND_THEME);
   this.gameOptions(); 
 }
 
@@ -118,6 +121,7 @@ Game.prototype.gameOver = function () {
 };
 
 Game.prototype.gameOptions = function () {
+  this.soundTheme.play();
   $message = $('<div>').addClass("game-options animated flipInX").html("Start single").attr("id", "game-option-single");
   $(".container").append($message);
   $message.center().css('top', "-=40px");
@@ -138,12 +142,19 @@ Game.prototype.gameOptions = function () {
 
    $("#game-option-single").click(function(){
       $(".game-options").remove();
+     
+      this.soundTheme.pause();
+      this.soundTheme.currentTime = 0;
+      (new Audio(SND_OPTIONS)).play();
       this.stage = "begin";
       this.isMultiplayer = false;
       this.nextStage();
    }.bind(this));
 
   $("#game-option-multi").click(function(){
+      this.soundTheme.pause();
+      this.soundTheme.currentTime = 0;
+      (new Audio(SND_OPTIONS)).play();
       $(".game-options").remove();
       this.isMultiplayer = true;
       this.remote.init();
@@ -208,6 +219,7 @@ function Cannoner(board, player, finishCb, remote) {
 
   this.isFinished = false;
   this.cannonsPlaced = 0;
+
 }
 
 Cannoner.prototype.init = function() {
@@ -231,6 +243,7 @@ Cannoner.prototype.click = function(event) {
     this.cannonsPlaced++;
     this.board.removeCannonSegment(this.segment);
     this.board.drawCannons();
+    (new Audio(SND_BUILD)).play();
     
     this.remote.emit("draw-cannon", this.segment[0] );
     this.segment = null;
@@ -264,6 +277,8 @@ Cannoner.prototype.moveCannon = function(mouse) {
     this.board.removeCannonSegment(this.segment);
     this.segment = newSegment;
     this.board.drawCannonSegment(this.segment); 
+    (new Audio(SND_ROTATE)).play();
+
     this.remote.emit('draw-cannon-segment', this.segment);
   }
 };
@@ -271,6 +286,7 @@ Cannoner.prototype.moveCannon = function(mouse) {
 Cannoner.prototype.getSegment = function(row, col) {
   return segCannon(row, col);  
 };
+
 
 function Player(type,number) {
   this.number = number;
@@ -362,6 +378,10 @@ function isCellInside(cell, area) {
   return area.find(function(a) {
     return cell.row === a.row && cell.col === a.col;
   });
+}
+
+function getRandomExplosionSound() {
+  return new Audio("snd/"+Math.floor(Math.random()*10+1)+".mp3");
 }
 
 var game = new Game();

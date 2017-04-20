@@ -5,16 +5,7 @@ function Builder(board, player, remote) {
   
   this.segmentFunctions = [seg1, seg2, seg3, segL, segLlarge, seg5];
   this.segmentDirection = 0; //N
-
-
-  
- /* this.initWalls();
-  this.board.drawWalls();
-  this.findTerritory();*/
-
 }
-
-
 
 Builder.prototype.init = function() {
   this.segmentFunction = this.getRandomSegment();
@@ -76,6 +67,7 @@ Builder.prototype.segmentValid = function() {
     this.remote.emit('segment-valid', false);
   }
 };
+
 Builder.prototype.findTerritory = function() {
   var maxRows = this.board.rows;
   var maxColumns = this.board.columns;
@@ -160,7 +152,7 @@ Builder.prototype.click = function(mouse) {
       if(this.board.canBuild(this.segment)) {
         this.player.addWall(this.segment);
         this.remote.emit('draw-wall', this.segment);
-
+         (new Audio(SND_BUILD)).play();
         this.board.drawWalls();
 
         this.findTerritory();
@@ -173,6 +165,7 @@ Builder.prototype.click = function(mouse) {
       break;
     case 3:
       this.segmentDirection = (this.segmentDirection + 1 + 4) % 4;  
+       (new Audio(SND_ROTATE)).play();
       this.redrawSegment(target);
       break;
   }
@@ -186,6 +179,7 @@ Builder.prototype.redrawSegment = function(target) {
   this.remote.emit("draw-segment", this.segment);
   this.segmentValid(this.segment);
 };
+
 Builder.prototype.finish = function() {
   if(this.segment) this.board.removeSegment(this.segment);
   $('.land').unbind("mouseover");

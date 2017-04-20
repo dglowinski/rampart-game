@@ -228,6 +228,7 @@ Board.prototype.removeShip = function (id) {
 
 Board.prototype.animateShotShip = function ($ship) {
   $ship.attr("src", "img/ship_fire.svg");
+  getRandomExplosionSound().play();
   setTimeout(function(){
      $ship.attr("src", "img/ship2.svg");
   }, 300);
@@ -237,6 +238,7 @@ Board.prototype.animateShotCannon = function ($cannon) {
   var offset = $cannon.offset();
   
   var $img = $("<img class='fire' src='img/fire.png'>");
+  getRandomExplosionSound().play();
    offset.left-=10;
   $img.offset(offset);
   $('.container').append($img);
@@ -287,6 +289,7 @@ Board.prototype.animateShot = function ($origin, $target, cb) {
       $explosion.offset(explosionOffset);
       $ball.remove();
       $('.container').append($explosion);
+      getRandomExplosionSound().play();
       if(cb) cb();
       
       setTimeout(function(){

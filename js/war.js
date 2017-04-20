@@ -150,7 +150,6 @@ War.prototype.getRandomShipPosition = function () {
 
 
 
-
 function Ship(position, player, board, onShipShootCb) {
   this.row = position.row;
   this.col = position.col;
