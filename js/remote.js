@@ -5,40 +5,49 @@ function Remote(board, players, onConnect, onCannonerFinish, onGameOver) {
   this.onConnect = onConnect;
   this.isCannonerFinished = false;
   this.onCannonerFinish = onCannonerFinish;
+  this.isOn = false;
  
   this.onGameOver = onGameOver;
-  console.log(this.onGameOver)
 }
 
 Remote.prototype.init = function(type, obj) {
-  
-  this.socket = io('https://safe-falls-11425.herokuapp.com');
+
+  if(!this.socket) {
+    console.log()
+    this.socket = io('https://safe-falls-11425.herokuapp.com');
+    
+
+    this.socket.on('message', function(msg){
+      if(this.isOn) {
+        console.log("recieve "+msg.type);
+        switch(msg.type) {
+          case "draw-segment": this.moveSegment(msg.obj); break;
+          case "segment-valid": this.segmentValid(msg.obj); break;
+          case "draw-wall": this.drawWall(msg.obj); break;
+          case "draw-territory": this.drawTerritory(msg.obj); break;
+          case "you-are-master": this.setMaster(); break;
+          case "you-are-slave": this.setSlave(); break;
+          case "draw-cannon-segment": this.drawCannonSegment(msg.obj); break;
+          case "draw-cannon": this.drawCannon(msg.obj); break;
+          case "cannoner-finished": this.cannonerFinished(); break;
+          case "draw-ships": this.drawShips(msg.obj); break;
+          case "ship-shoot": this.shipShoot(msg.obj); break;
+          case "destroy-ship": this.shipDestroy(msg.obj); break;
+          case "cannon-shoot-land": this.cannonShootLand(msg.obj); break;
+          case "cannon-shoot-ship": this.cannonShootShip(msg.obj); break;
+          case "game-over": this.win(); break;
+        }
+      }
+    }.bind(this));
+  }
+  this.start();  
   this.emit('you-are-master', {});
 
-  this.socket.on('message', function(msg){
-    console.log(msg.type);
-   switch(msg.type) {
-     case "draw-segment": this.moveSegment(msg.obj); break;
-     case "segment-valid": this.segmentValid(msg.obj); break;
-     case "draw-wall": this.drawWall(msg.obj); break;
-     case "draw-territory": this.drawTerritory(msg.obj); break;
-     case "you-are-master": this.setMaster(); break;
-     case "you-are-slave": this.setSlave(); break;
-     case "draw-cannon-segment": this.drawCannonSegment(msg.obj); break;
-     case "draw-cannon": this.drawCannon(msg.obj); break;
-     case "cannoner-finished": this.cannonerFinished(); break;
-     case "draw-ships": this.drawShips(msg.obj); break;
-     case "ship-shoot": this.shipShoot(msg.obj); break;
-     case "destroy-ship": this.shipDestroy(msg.obj); break;
-     case "cannon-shoot-land": this.cannonShootLand(msg.obj); break;
-     case "cannon-shoot-ship": this.cannonShootShip(msg.obj); break;
-     case "game-over": this.win(); break;
-   }
-  }.bind(this));
 };
 
 Remote.prototype.emit = function(type, obj) {
-  if(this.socket) {
+  console.log("emit "+type);
+  if(this.socket && this.isOn) {
       this.socket.emit('message', {type:type, obj:obj});
   }
 };
@@ -66,7 +75,6 @@ Remote.prototype.drawTerritory = function(territory) {
 
 Remote.prototype.setMaster = function(territory) {
   this.isMaster = true;
-  console.log('master');
   this.onConnect('master');
   this.emit("you-are-slave", null);
 };
@@ -151,3 +159,11 @@ Remote.prototype.cannonShoot = function(cannon, targetSelector, cb) {
 Remote.prototype.win = function() {
   this.onGameOver();
 };
+
+Remote.prototype.stop = function() {
+  this.isOn = false;
+};
+
+Remote.prototype.start = function() {
+  this.isOn = true;
+}

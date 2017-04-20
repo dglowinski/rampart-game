@@ -19,6 +19,8 @@ Board.prototype.initBoard = function () {
 
 Board.prototype.reset = function () {
   $(".wall").removeClass("wall");
+  $(".territory-player-0").removeClass("territory-player-0");
+  $(".territory-player-1").removeClass("territory-player-1");
   $(".cannon-img").remove();
   $(".ship").remove();
 };

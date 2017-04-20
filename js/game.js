@@ -34,20 +34,17 @@ Game.prototype.onConnect = function (role) {
 
 Game.prototype.onWin = function () {
   this.stage = "begin";
-
   $('.game-message').remove();
+  this.stopGame = true;
   this.message("VICTORY!!", this.gameOptions.bind(this));
 }
 
 Game.prototype.nextStage = function () {
+  if(!this.stopGame) { 
   switch(this.stage) {
     case "begin":
-      this.players[0].reset();
-      this.players[1].reset();
-      this.war.reset();
-      this.board.reset();
-      this.cannoner.reset();
       this.builder.makeCastle();
+      console.log('make castle')
       this.stage = "cannoner";
       this.message("Place cannons", this.startStage.bind(this));
       break;
@@ -79,6 +76,7 @@ Game.prototype.nextStage = function () {
       this.message("WAR!!", this.startStage.bind(this));
       break;
   }
+  }
 };
 
 Game.prototype.startStage = function () {
@@ -104,13 +102,19 @@ Game.prototype.startStage = function () {
 };
 
 Game.prototype.gameOver = function () {
+  this.stopGame = true;
   this.message("GAME OVER", this.gameOptions.bind(this));
   (new Audio(SND_GAME_OVER)).play();
+
   this.remote.emit("game-over");
+  this.remote.stop();
 };
 
 Game.prototype.gameOptions = function () {
+  this.reset();
+
   this.soundTheme.play();
+
   $message = $('<div>').addClass("game-options animated flipInX").html("Start single").attr("id", "game-option-single");
   $(".container").append($message);
   $message.center().css('top', "-=40px");
@@ -135,6 +139,7 @@ Game.prototype.gameOptions = function () {
       this.soundTheme.pause();
       this.soundTheme.currentTime = 0;
       (new Audio(SND_OPTIONS)).play();
+      this.stopGame = false;
       this.stage = "begin";
       this.isMultiplayer = false;
       this.nextStage();
@@ -144,6 +149,8 @@ Game.prototype.gameOptions = function () {
       this.soundTheme.pause();
       this.soundTheme.currentTime = 0;
       (new Audio(SND_OPTIONS)).play();
+      this.stopGame = false;
+      this.stage = "begin";
       $(".game-options").remove();
       this.isMultiplayer = true;
       this.remote.init();
@@ -196,4 +203,15 @@ Game.prototype.startTimer = function (seconds) {
       this.nextStage();
     }
   }.bind(this), 1000);
+};
+
+Game.prototype.reset = function () {
+  this.players[0].reset();
+  this.players[1].reset();
+  this.war.reset();
+  this.board.reset();
+  this.cannoner.reset();
+  this.isMultiplayer = false;
+  this.remote.isCannonerFinished=false;
+  this.remote.stop();
 };

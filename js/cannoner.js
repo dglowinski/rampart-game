@@ -45,6 +45,7 @@ Cannoner.prototype.click = function(event) {
 Cannoner.prototype.finish = function(withCb) {
   $('.territory-player-'+this.player.number).unbind("mouseover");
   $('.territory-player-'+this.player.number).unbind("mousedown");
+  this.board.removeCannonSegment(this.segment);
   this.isFinished = true;
   if(withCb) this.onFinishCb();
 };
