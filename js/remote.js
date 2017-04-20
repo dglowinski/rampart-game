@@ -13,10 +13,8 @@ function Remote(board, players, onConnect, onCannonerFinish, onGameOver) {
 Remote.prototype.init = function(type, obj) {
 
   if(!this.socket) {
-    console.log()
     this.socket = io('https://safe-falls-11425.herokuapp.com');
     
-
     this.socket.on('message', function(msg){
       if(this.isOn) {
         console.log("recieve "+msg.type);
@@ -45,9 +43,9 @@ Remote.prototype.init = function(type, obj) {
 
 };
 
-Remote.prototype.emit = function(type, obj) {
-  console.log("emit "+type);
+Remote.prototype.emit = function(type, obj) { 
   if(this.socket && this.isOn) {
+      console.log("emit "+type);
       this.socket.emit('message', {type:type, obj:obj});
   }
 };
@@ -100,9 +98,11 @@ Remote.prototype.drawCannon = function(cell) {
 Remote.prototype.cannonerFinished = function(cell) {
   this.isCannonerFinished = true;
   this.onCannonerFinish(false);
+
 };
 
 Remote.prototype.drawShips = function(ships) {
+  this.board.removeCannonSegment(this.cannonSegment);
   this.ships = ships;
   this.ships.forEach(function(ship){
     ship.id="r"+ship.id;
@@ -162,6 +162,8 @@ Remote.prototype.win = function() {
 
 Remote.prototype.stop = function() {
   this.isOn = false;
+  this.board.removeCannonSegment(this.cannonSegment);
+  if(this.segment) this.board.removeSegment(this.segment);
 };
 
 Remote.prototype.start = function() {
