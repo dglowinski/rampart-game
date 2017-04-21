@@ -17,7 +17,7 @@ Remote.prototype.init = function(type, obj) {
     
     this.socket.on('message', function(msg){
       if(this.isOn) {
-        console.log("recieve "+msg.type);
+        //console.log("recieve "+msg.type);
         switch(msg.type) {
           case "draw-segment": this.moveSegment(msg.obj); break;
           case "segment-valid": this.segmentValid(msg.obj); break;
@@ -45,7 +45,7 @@ Remote.prototype.init = function(type, obj) {
 
 Remote.prototype.emit = function(type, obj) { 
   if(this.socket && this.isOn) {
-      console.log("emit "+type);
+      //console.log("emit "+type);
       this.socket.emit('message', {type:type, obj:obj});
   }
 };
@@ -111,6 +111,7 @@ Remote.prototype.drawShips = function(ships) {
 };
 
 Remote.prototype.shipShoot = function(obj) {
+   
    this.board.animateShotShip($(cellSelector(obj.ship.row, obj.ship.col)).find("img"));
    this.board.animateShot($(cellSelector(obj.ship.row, obj.ship.col)).find("img"), $(cellSelector(obj.wall.row, obj.wall.col)), this.shipShootCb.bind(this, obj.ship, obj.wall));
 };
