@@ -183,6 +183,8 @@ Game.prototype.onCannonerFinish = function (gameOver) {
     this.gameOver();
   } else {
     if(!this.isMultiplayer || this.cannoner.isFinished && this.remote.isCannonerFinished) {
+       this.cannoner.isFinished = false;
+       this.remote.isCannonerFinished = false;
        clearInterval(this.timerId);
        this.nextStage();
     }
