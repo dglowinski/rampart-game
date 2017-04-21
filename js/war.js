@@ -80,7 +80,7 @@ War.prototype.registerEvents = function() {
 };
 
 War.prototype.destroyRemoteWall = function(cell) {
-  var wallIndex = this.players[0].wall.findIndex(function(wall){
+  var wallIndex = this.players[1].wall.findIndex(function(wall){
     return wall.row === cell.row && wall.col === cell.col;
   });
   this.players[1].destroyWall(wallIndex);
